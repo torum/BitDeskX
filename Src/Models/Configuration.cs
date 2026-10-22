@@ -22,23 +22,13 @@ public class Configuration
     }
 
     public WindowSettings MainWindow { get; set; } = new WindowSettings();
-    public bool IsSaveLog { get; set; }
 
-    public string LastOpenedDirectory { get; set; } = string.Empty;
+    public bool IsSaveLog { get; set; } = false;
 
-    public bool IsShuffleOn { get; set; } = false;
-    public bool IsRepeatOn { get; set; } = false;
-    public bool IsOverrideSystemDpiScalingFactorOn { get; set; } = false;
-    public bool IsViewImageListOn { get; set; } = false;
-    public bool IsViewFilePathPopupOn { get; set; } = false;
-    public long SlideshowTimerInterval { get; set; } = 5;
-    public bool IsStretchInOn { get; set; } = false;
-    public bool IsStretchOutOn { get; set; } = false;
-    public bool IsEffectFadeInAndOutOn { get; set; } = false;
-    public bool IsEffectPageSlideOn { get; set; } = false;
-    public bool IsNoEffectsOn { get; set; } = false;
-    public bool IsEffectCrossfadeOn { get; set; } = false;
+    public bool IsNavigationViewMenuOpen { get; set; } = true;
 
-
+    public bool IsOnBtcJpy { get; set; } = false;
+    public bool IsOnXrpJpy { get; set; } = false;
+    public bool IsOnEthJpy { get; set; } = false;
 
 }

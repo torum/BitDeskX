@@ -30,7 +30,7 @@ public partial class PairViewModel : ObservableObject
     private DateTime lastChartLoadedDateTime = DateTime.MinValue;
 
     public delegate void DepthCenterEventHandler();
-    public event DepthCenterEventHandler? DepthScrollCenter;
+    //public event DepthCenterEventHandler? DepthScrollCenter;
 
     private readonly List<DateTime> _chartTimes = [];
     private bool _chartRefreshRunning;
@@ -54,7 +54,7 @@ public partial class PairViewModel : ObservableObject
         ChangeCandleType(CandleTypes.OneHour);
 
         // Chart update timer
-        _dispatcherTimerChart.Tick += OnTickerTimerChart;
+        _dispatcherTimerChart.Tick += OnTimerChart;
         _dispatcherTimerChart.Interval = new(0, 1, 0); // Temp testing. //chartUpdateInterval;
         _dispatcherTimerChart.Start();
 
@@ -1437,7 +1437,7 @@ public partial class PairViewModel : ObservableObject
     // Called from MainViewModel.
     public async Task InitializeAndLoadAsync()
     {
-        //Debug.WriteLine($"InitializeAndLoadAsync() called for {PairCode} at {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+        Debug.WriteLine($"InitializeAndLoadAsync() called for {PairCode} at {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
 
         if (IsChartInitAndLoaded)
         {
@@ -1516,6 +1516,7 @@ public partial class PairViewModel : ObservableObject
             return;
         }
 
+        /*
         PairCodes pair = data.TickerPair;
         DateTime timeStamp = DateTimeOffset.FromUnixTimeMilliseconds(data.Timestamp).LocalDateTime;
 
@@ -1524,12 +1525,13 @@ public partial class PairViewModel : ObservableObject
         decimal percentChange = data.Open != 0 ? (priceChange / data.Open) * 100 : 0;
 
         // Print out your typed metrics using standard number formatting
-        //Debug.WriteLine($"=== {pair} NUMERIC DATA [{timeStamp:yyyy-MM-dd HH:mm:ss}] ===");
-        //Debug.WriteLine($"  Last Price : {data.Last:N0} JPY ({percentChange:+0.00;-0.00;0.00}%)");
-        //Debug.WriteLine($"  Bid (Buy)  : {data.Buy:N0}   | Ask (Sell) : {data.Sell:N0}");
-        //Debug.WriteLine($"  24h High   : {data.High:N0}  | 24h Low    : {data.Low:N0}");
-        //Debug.WriteLine($"  24h Volume : {data.Vol:N4}");
-        //Debug.WriteLine(new string('=', 45));
+        Debug.WriteLine($"=== {pair} NUMERIC DATA [{timeStamp:yyyy-MM-dd HH:mm:ss}] ===");
+        Debug.WriteLine($"  Last Price : {data.Last:N0} JPY ({percentChange:+0.00;-0.00;0.00}%)");
+        Debug.WriteLine($"  Bid (Buy)  : {data.Buy:N0}   | Ask (Sell) : {data.Sell:N0}");
+        Debug.WriteLine($"  24h High   : {data.High:N0}  | 24h Low    : {data.Low:N0}");
+        Debug.WriteLine($"  24h Volume : {data.Vol:N4}");
+        Debug.WriteLine(new string('=', 45));
+        */
 
         if (data.TickerPair != PairCode)
         {
@@ -1546,6 +1548,7 @@ public partial class PairViewModel : ObservableObject
                 section.Yj = (double)data.Last;
             }
 
+            DateTime timeStamp = DateTimeOffset.FromUnixTimeMilliseconds(data.Timestamp).LocalDateTime;
             UpdateCurrentCandle(timeStamp, data.Last);
         });
     }
@@ -1641,6 +1644,11 @@ public partial class PairViewModel : ObservableObject
         {
             secn.Yi = (double)_ltp;
             secn.Yj = (double)_ltp;
+        }
+
+        if (!IsEnabled)
+        {
+            return;
         }
 
         // gets new data.
@@ -1876,7 +1884,7 @@ public partial class PairViewModel : ObservableObject
                 }
                 else
                 {
-                    Debug.WriteLine("1 failed to get candlestic.");
+                    Debug.WriteLine($"1 failed to get candlestic. {pair}");
                     return OhlcvList;//  = new List<Ohlcv>(); 
                 }
             }
@@ -1906,7 +1914,7 @@ public partial class PairViewModel : ObservableObject
                 }
                 else
                 {
-                    Debug.WriteLine("2 failed to get candlestic.");
+                    Debug.WriteLine($"2 failed to get candlestic. {pair}");
                     //OhlcvList.Clear();
                     return OhlcvList;
                 }
@@ -2019,7 +2027,7 @@ public partial class PairViewModel : ObservableObject
         return null;
     }
 
-    private void OnTickerTimerChart(object? source, object e)
+    private void OnTimerChart(object? source, object e)
     {
         _ = UpdateChartAsync();
     }

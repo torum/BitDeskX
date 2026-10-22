@@ -8,7 +8,7 @@
              x:DataType="vm:MainViewModel"
              x:Class="BitDesk.Views.MultipleView">
     <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <ItemsControl ItemsSource="{Binding Pairs}">
+        <ItemsControl ItemsSource="{Binding EnabledPairs}" Margin="12,0,0,0">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <UniformGrid Columns="{Binding UniformGridColumns}" UseLayoutRounding="True" />
@@ -16,7 +16,7 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate x:DataType="vm:PairViewModel">
-                    <Grid>
+                    <Grid Margin="6">
                         <Border HorizontalAlignment="Left" 
                                 VerticalAlignment="Top" 
                                 Margin="8" 

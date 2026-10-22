@@ -1,4 +1,7 @@
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
 using BitDesk.Models;
 using BitDesk.Services;
 using BitDesk.Services.Contracts;
@@ -9,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace BitDesk.Views;
 
@@ -22,6 +26,7 @@ public partial class MainWindow : Window
         { "BitDesk.Views.ChartPages.XrpJpyPage", typeof(Views.ChartPages.XrpJpyPage) },
         { "BitDesk.Views.ChartPages.EthJpyPage", typeof(Views.ChartPages.EthJpyPage) },
         { "BitDesk.Views.MultipleView", typeof(Views.MultipleView) },
+        { "BitDesk.Views.SettingsPage", typeof(Views.SettingsPage) },
     };
 
     private readonly List<(string Tag, Type Page)> _pages =
@@ -30,6 +35,7 @@ public partial class MainWindow : Window
         (PairCodes.xrp_jpy.ToString(), typeof(XrpJpyPage)),
         (PairCodes.eth_jpy.ToString(), typeof(EthJpyPage)),
         ("multiple", typeof(MultipleView)),
+        ("settings", typeof(SettingsPage)),
         /*
         (PairCodes.ltc_jpy.ToString(), typeof(LtcJpyPage)),
         (PairCodes.mona_jpy.ToString(), typeof(MonaJpyPage)),
@@ -52,9 +58,13 @@ public partial class MainWindow : Window
         (PairCodes.axs_jpy.ToString(), typeof(AxsJpyPage)),
         (PairCodes.flr_jpy.ToString(), typeof(FlrJpyPage)),
         (PairCodes.sand_jpy.ToString(), typeof(SandJpyPage)),
-        ("settings", typeof(SettingsPage)),
         */
     ];
+
+    private int _winRestoreWidth { get; set; } = 1024;
+    private int _winRestoreHeight { get; set; } = 768;
+    private int _winRestoreTop { get; set; } = 100;
+    private int _winRestoreLeft { get; set; } = 100;
 
     private readonly IBitbankStreamService _tickerService;
     private readonly IConfigurationService _configurationService;
@@ -74,51 +84,130 @@ public partial class MainWindow : Window
         InitializeComponent();
 
         this.Title = "BitDeskX";
+        Bitmap bitmap = new(AssetLoader.Open(new Uri("avares://BitDeskX/Assets/BitDeskX-24.png")));
+        ImageAppIcon.Source = bitmap;
         this.WindowDecorations = WindowDecorations.Full;
         this.ExtendClientAreaToDecorationsHint = true;
 
         _navigationService.Initialize(RootFrame, _pageMap);
 
-        this.Closing += MainWindow_Closing;
+        var mw = _configurationService.CurrentConfiguration.MainWindow;
+
+        if (mw.Height >= 200)
+        {
+            this.Height = mw.Height;
+        }
+
+        if (mw.Width >= 200)
+        {
+            this.Width = mw.Width;
+        }
+
+        // TODO: multi-monitor support. If the saved position is outside of the current monitor, move it to the monitor.
+        if ((mw.Left >= 0) && (mw.Top >= 0))
+        {
+            this.Position = new PixelPoint(mw.Left, mw.Top);
+        }
+        else
+        {
+            this.Position = new PixelPoint(0, 0);
+        }
+
+        _winRestoreWidth = (int)mw.RestoreWidth;
+        _winRestoreHeight = (int)mw.RestoreHeight;
+        _winRestoreLeft = mw.RestoreLeft;
+        _winRestoreTop = mw.RestoreTop;
+
+        if (mw.WindowState == WindowState.Maximized)
+        {
+            this.WindowState = WindowState.Maximized;
+        }
+        else
+        {
+            this.WindowState = WindowState.Normal;
+        }
     }
 
     protected async override void OnOpened(EventArgs e)
     {
         base.OnOpened(e);
 
-        if (_navigationService.NavigateTo("BitDesk.Views.ChartPages.BtcJpyPage", null))
-        {
-            //NavigateViewControl.MenuItems.FirstOrDefault(x => x.Tag?.ToString() == "btc_jpy")?.Selected = true;
-
-            NavigateViewControl.SelectedItem = NavigateViewControl.MenuItems.OfType<FANavigationViewItem>().Where(x => x.Tag?.ToString()?.Equals("btc_jpy") == true).FirstOrDefault();//.First();
-
-            var _activePair = Enum.TryParse<PairCodes>("btc_jpy", out var parsedPair);
-            if (_activePair)
-            {
-                await _mainViewModel.SetSelectedPairFromCodeAsync(parsedPair);
-            }
-        }
-        /*
-        var pair = _mainViewModel.Pairs.FirstOrDefault(p => p.PairCode == BitDesk.Models.PairCodes.btc_jpy);
-
-        if (pair is not null)
-        {
-            _navigationService.NavigateTo("BitDesk.Views.ChartPages.BtcJpyPage", pair);
-            //this.RootFrame.Navigate(typeof(Views.ChartPages.BtcJpyPage), pair);
-        }
-        */
+        this.Activated += MainWindow_Activated;
+        this.SizeChanged += this.MainWindow_SizeChanged;
+        this.PositionChanged += this.MainWindow_PositionChanged;
+        //this.ActualThemeVariantChanged += OnActualThemeVariantChanged;
+        //this.PropertyChanged += this.OnWindow_PropertyChanged;
 
         await _mainViewModel.InitializeAndStartAsync();
+
+        bool IsOnlySettingsPage = false;
+
+        if (_mainViewModel.EnabledPairs.Count <= 0)
+        {
+            Debug.WriteLine("OnOpened: No enabled pairs found. Please enable at least one pair in the settings.");
+            IsOnlySettingsPage = true;
+        }
+
+        if (NavigateViewControl.MenuItems.Count <= 0)
+        {
+            Debug.WriteLine("NavigateViewControl.MenuItems.Count <= 0. No menu items to select.");
+            IsOnlySettingsPage = true;
+        }
+
+        NavigateViewControl.SelectedItem = NavigateViewControl.MenuItems.OfType<FANavigationViewItem>().Where(x => x.IsVisible == IsVisible).FirstOrDefault();//.First();
+
+        if (NavigateViewControl.SelectedItem is null)
+        {
+            Debug.WriteLine("NavigateViewControl.SelectedItem is null. No menu items to select.");
+            IsOnlySettingsPage = true;
+        }
+
+        if (IsOnlySettingsPage)
+        {
+            var settingsItem = NavigateViewControl.MenuItems.OfType<FANavigationViewItem>().Where(x => x.Tag?.ToString()?.Equals("settings") == true).FirstOrDefault();//.First();
+            var SettingsPage = _pages.FirstOrDefault(p => p.Tag == "settings");
+            if (_navigationService.NavigateTo(SettingsPage.Page?.FullName, null))
+            {
+                //Debug.WriteLine($"NavigationView_ItemInvoked: Navigation to pageInfo successful.");
+            }
+            else
+            {
+                Debug.WriteLine($"OnOpened: Navigation to SettingsPage failed.");
+            }
+
+            return;
+        }
+
+        var pairViewModel = _mainViewModel.EnabledPairs.FirstOrDefault();
+
+        if (pairViewModel is not null)
+        {
+            var item = _pages.FirstOrDefault(p => p.Tag.Equals(pairViewModel.PairCode.ToString()));
+            var _page = item.Page;
+
+            if (_navigationService.NavigateTo(_page.FullName, null))
+            {
+                NavigateViewControl.SelectedItem = NavigateViewControl.MenuItems.OfType<FANavigationViewItem>().Where(x => x.Tag?.ToString()?.Equals(pairViewModel.PairCode.ToString()) == true).FirstOrDefault();//.First();
+
+                await _mainViewModel.SetSelectedPairFromCodeAsync(pairViewModel.PairCode);
+            }
+        }
+
+
     }
 
     protected override void OnClosed(EventArgs e)
     {
-        this.Closing -= MainWindow_Closing;
+        this.Activated -= MainWindow_Activated;
+        this.SizeChanged -= this.MainWindow_SizeChanged;
+        this.PositionChanged -= this.MainWindow_PositionChanged;
+        //this.ActualThemeVariantChanged -= OnActualThemeVariantChanged;
+        //this.PropertyChanged -= this.OnWindow_PropertyChanged;
 
         base.OnClosed(e);
     }
 
-    private async void MainWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
+    protected override async void OnClosing(WindowClosingEventArgs e)
     {
         if (_allowClose)
         {
@@ -135,6 +224,29 @@ public partial class MainWindow : Window
 
         // Cancel the closing event to prevent the window from closing immediately
         e.Cancel = true;
+
+        // Window Position must be saved before the window is closed, otherwise the position will be lost.
+        #region == Save Configuration ==
+
+        _mainViewModel.UpdateCurrentSettings();
+
+        var config = _configurationService.CurrentConfiguration;
+        config.MainWindow.Width = this.Width;
+        config.MainWindow.Height = this.Height;
+        config.MainWindow.Left = this.Position.X;
+        config.MainWindow.Top = this.Position.Y;
+        config.MainWindow.WindowState = this.WindowState;
+        config.MainWindow.RestoreWidth = _winRestoreWidth;
+        config.MainWindow.RestoreHeight = _winRestoreHeight;
+        config.MainWindow.RestoreLeft = _winRestoreLeft;
+        config.MainWindow.RestoreTop = _winRestoreTop;
+
+        config.IsNavigationViewMenuOpen = this.NavigateViewControl.IsPaneOpen;
+
+        await _configurationService.SaveConfigurationAsync();
+
+        #endregion
+
         // Hide the window instead of closing it
         this.Hide();
 
@@ -144,6 +256,39 @@ public partial class MainWindow : Window
         // After the service has stopped, allow the window to close
         _allowClose = true;
         Close();
+    }
+
+    private void MainWindow_Activated(object? sender, EventArgs e)
+    {
+        if (this.WindowState == WindowState.Normal)
+        {
+            _winRestoreHeight = (int)this.Height;
+            _winRestoreWidth = (int)this.Width;
+            _winRestoreTop = this.Position.Y;
+            _winRestoreLeft = this.Position.X;
+        }
+    }
+
+    private void MainWindow_SizeChanged(object? sender, Avalonia.Controls.SizeChangedEventArgs e)
+    {
+        if (this.WindowState == WindowState.Normal)
+        {
+            _winRestoreHeight = (int)this.Height;
+            _winRestoreWidth = (int)this.Width;
+            _winRestoreTop = this.Position.Y;
+            _winRestoreLeft = this.Position.X;
+        }
+    }
+
+    private void MainWindow_PositionChanged(object? sender, PixelPointEventArgs e)
+    {
+        if (this.WindowState == WindowState.Normal)
+        {
+            _winRestoreHeight = (int)this.Height;
+            _winRestoreWidth = (int)this.Width;
+            _winRestoreTop = this.Position.Y;
+            _winRestoreLeft = this.Position.X;
+        }
     }
 
     private void NavigationView_Loaded(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -229,8 +374,16 @@ public partial class MainWindow : Window
         }
         if (e.IsSettingsInvoked == true)
         {
-            // pass mainviewmodel for setting page.
-            //NavigationFrame.Navigate(typeof(SettingsPage), _mainViewModel);
+            var settingsItem = nv.MenuItems.OfType<FANavigationViewItem>().Where(x => x.Tag?.ToString()?.Equals("settings") == true).FirstOrDefault();//.First();
+            var SettingsPage = _pages.FirstOrDefault(p => p.Tag == "settings");
+            if (_navigationService.NavigateTo(SettingsPage.Page?.FullName, null))
+            {
+                //Debug.WriteLine($"NavigationView_ItemInvoked: Navigation to pageInfo successful.");
+            }
+            else
+            {
+                Debug.WriteLine($"NavigationView_ItemInvoked: Navigation to SettingsPage failed.");
+            }
 
             return;
         }
@@ -257,15 +410,11 @@ public partial class MainWindow : Window
             return;
         }
 
-
-
-
         var pageInfo = _pages.FirstOrDefault(p => p.Tag == invokedItem.Tag?.ToString());
 
         if (_navigationService.NavigateTo(pageInfo.Page?.FullName, null))
         {
             //Debug.WriteLine($"NavigationView_ItemInvoked: Navigation to pageInfo successful.");
-            nv.SelectedItem = selectedItem;
 
             if (invokedItem.Tag?.ToString() == "multiple")
             {
@@ -290,29 +439,12 @@ public partial class MainWindow : Window
         {
             Debug.WriteLine($"NavigationView_ItemInvoked: Navigation to pageInfo failed.");
         }
-
-        /*
-        // Not really "invoked" now that we use clicking on the settings icon....
-        if (e.IsSettingsInvoked == true)
-        {
-            //await vm.GetCacheFolderSizeAsync();
-            await RefreshCacheFolderSizeSafeAsync(vm);
-
-            nv.Content = App.GetService<SettingsPage>();
-
-            return;
-        }
-
-        var mainView = App.GetService<MainView>();
-        if (nv.Content is not MainView)
-        {
-            nv.Content = mainView;
-        }
-        */
     }
 
     private void RootFrame_Navigated(object sender, FluentAvalonia.UI.Navigation.FANavigationEventArgs e)
     {
+        /*
+        // e.Source is..
         if (e.Content is BtcJpyPage btcJpyPage)
         {
             btcJpyPage.InitializeNavigationParameter(e.Parameter);
@@ -325,6 +457,7 @@ public partial class MainWindow : Window
         {
             xrpJpyPage.InitializeNavigationParameter(e.Parameter);
         }
+        */
 
     }
 }

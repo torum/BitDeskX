@@ -1,25 +1,40 @@
-﻿using BitDesk.ViewModels;
+﻿using BitDesk.Models;
+using BitDesk.Services.Contracts;
+using BitDesk.ViewModels;
 using SocketIOClient;
 using SocketIOClient.Common;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
-using BitDesk.Models;
-using BitDesk.Services.Contracts;
 
 namespace BitDesk.Services;
 
 internal class BitbankStreamService : IBitbankStreamService
 {
     private SocketIOClient.SocketIO? _client;
-    //private bool _isRunning;
+    private string[] _rooms = new[] { "ticker_btc_jpy", "ticker_eth_jpy", "ticker_xrp_jpy" };
+
+    private bool _isInitialized;
     private bool _isConnected;
+    private readonly Lock _lock = new();
+
     public event EventHandler<BitbankTickerData>? TickerUpdated;
 
     public BitbankStreamService()
     {
+
+    }
+
+    public bool IsConnected => _isConnected;
+
+    public void Initialize(List<PairCodes> pairCodes)
+    {
+        _isInitialized = true;
+        _rooms = pairCodes.Select(pc => $"ticker_{pc.ToString().ToLower()}").ToArray();
     }
 
     public async Task StartAsync()
@@ -99,13 +114,73 @@ internal class BitbankStreamService : IBitbankStreamService
 
         Debug.WriteLine("--> Successfully connected to Bitbank Stream! Subscribing now...");
 
-        var rooms = new[] { "ticker_btc_jpy", "ticker_eth_jpy", "ticker_xrp_jpy" };
+        //var rooms = new[] { "ticker_btc_jpy", "ticker_eth_jpy", "ticker_xrp_jpy" };
 
-        foreach (var room in rooms)
+        if (_rooms.Length == 0) return;
+
+        foreach (var room in _rooms)
         {
             var roomArray = new[] { room };
             await _client.EmitAsync("join-room", roomArray);
         }
+    }
+
+    public async Task LeaveRoomAsync(PairCodes pairCode)
+    {
+        if (_client == null || !_isConnected) return;
+
+        if (!_isInitialized) return;
+
+        string room = $"ticker_{pairCode.ToString().ToLower()}";
+
+        if (string.IsNullOrWhiteSpace(room)) return;
+
+        if (!_rooms.Contains(room, StringComparer.OrdinalIgnoreCase)) return;
+
+        Debug.WriteLine("--> Leaving Bitbank Stream rooms...");
+
+        // Wrap the room string in an array, matching your subscription pattern
+        var roomArray = new[] { room };
+
+        // Emit 'leave-room' to tell the Bitbank server to stop streaming this data
+        await _client.EmitAsync("leave-room", roomArray);
+
+        lock (_lock)
+        {
+            List<string> roomList = [.. _rooms];
+            roomList.Remove(room);
+            _rooms = [.. roomList];
+
+        }
+        Debug.WriteLine($"--> Left room: {room}");
+    }
+
+    public async Task JoinRoomAsync(PairCodes pairCode)
+    {
+        if (_client == null || !_isConnected) return;
+        
+        if (!_isInitialized) return;
+
+        if (string.IsNullOrWhiteSpace(pairCode.ToString())) return;
+
+        if (_rooms.Contains($"ticker_{pairCode.ToString().ToLower()}", StringComparer.OrdinalIgnoreCase)) return;
+
+        Debug.WriteLine("--> Joining Bitbank Stream rooms...");
+
+        // Wrap the room string in an array, matching your subscription pattern
+        var roomArray = new[] { $"ticker_{pairCode.ToString().ToLower()}" };
+
+        // Emit 'join-room' to tell the Bitbank server to start streaming this data
+        await _client.EmitAsync("join-room", roomArray);
+
+        lock (_lock)
+        {
+            List<string> roomList = [.. _rooms];
+            roomList.Add($"ticker_{pairCode.ToString().ToLower()}");
+            _rooms = [.. roomList];
+        }
+
+        Debug.WriteLine($"--> Joined room: {pairCode}");
     }
 
     public async Task StopAsync()

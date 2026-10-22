@@ -202,210 +202,86 @@ internal sealed class ConfigurationService : IConfigurationService
             var opts = _xdoc.Root.Element("Options");
             if (opts is not null)
             {
-                var attrs = opts.Attribute("lastOpenedDirectory");
-                if (attrs is not null)
-                {
-                    if (!string.IsNullOrEmpty(attrs.Value))
-                    {
-                        config.LastOpenedDirectory = attrs.Value;
-                    }
-                }
-
-                attrs = opts.Attribute("isShuffleOn");
+                var attrs = opts.Attribute("IsSaveLog");
                 if (attrs is not null)
                 {
                     if (!string.IsNullOrEmpty(attrs.Value))
                     {
                         if (attrs.Value == "True")
                         {
-                            config.IsShuffleOn = true;
+                            config.IsSaveLog = true;
                         }
                         else
                         {
-                            config.IsShuffleOn = false;
+                            config.IsSaveLog = false;
                         }
                     }
                 }
 
-                attrs = opts.Attribute("isRepeatOn");
+                attrs = opts.Attribute("IsNavigationViewMenuOpen");
                 if (attrs is not null)
                 {
                     if (!string.IsNullOrEmpty(attrs.Value))
                     {
                         if (attrs.Value == "True")
                         {
-                            config.IsRepeatOn = true;
+                            config.IsNavigationViewMenuOpen = true;
                         }
                         else
                         {
-                            config.IsRepeatOn = false;
+                            config.IsNavigationViewMenuOpen = false;
                         }
                     }
                 }
 
-                //#IsStayOnTop
-                //#IsSlideshowOn
-                //#IsFullscreenOn
-
-                attrs = opts.Attribute("isOverrideSystemDpiScalingFactorOn");
+                attrs = opts.Attribute("IsOnBtcJpy");
                 if (attrs is not null)
                 {
                     if (!string.IsNullOrEmpty(attrs.Value))
                     {
                         if (attrs.Value == "True")
                         {
-                            config.IsOverrideSystemDpiScalingFactorOn = true;
+                            config.IsOnBtcJpy = true;
                         }
                         else
                         {
-                            config.IsOverrideSystemDpiScalingFactorOn = false;
+                            config.IsOnBtcJpy = false;
                         }
                     }
                 }
 
-                attrs = opts.Attribute("isViewImageListOn");
+                attrs = opts.Attribute("IsOnXrpJpy");
                 if (attrs is not null)
                 {
                     if (!string.IsNullOrEmpty(attrs.Value))
                     {
                         if (attrs.Value == "True")
                         {
-                            config.IsViewImageListOn = true;
+                            config.IsOnXrpJpy = true;
                         }
                         else
                         {
-                            config.IsViewImageListOn = false;
+                            config.IsOnXrpJpy = false;
                         }
                     }
                 }
 
-                attrs = opts.Attribute("isViewFilePathPopupOn");
+                attrs = opts.Attribute("IsOnEthJpy");
                 if (attrs is not null)
                 {
                     if (!string.IsNullOrEmpty(attrs.Value))
                     {
                         if (attrs.Value == "True")
                         {
-                            config.IsViewFilePathPopupOn = true;
+                            config.IsOnEthJpy = true;
                         }
                         else
                         {
-                            config.IsViewFilePathPopupOn = false;
+                            config.IsOnEthJpy = false;
                         }
                     }
                 }
 
-                //SlideshowTimerInterval
-                attrs = opts.Attribute("slideshowTimerInterval");
-                if (attrs is not null)
-                {
-                    if (!string.IsNullOrEmpty(attrs.Value))
-                    {
-                        if (long.TryParse(attrs.Value, out long number))
-                        {
-                            if (number >= 0)
-                            {
-                                config.SlideshowTimerInterval = number;
-                            }
-                        }
-                    }
-                }
-
-                attrs = opts.Attribute("isStretchInOn");
-                if (attrs is not null)
-                {
-                    if (!string.IsNullOrEmpty(attrs.Value))
-                    {
-                        if (attrs.Value == "True")
-                        {
-                            config.IsStretchInOn = true;
-                        }
-                        else
-                        {
-                            config.IsStretchInOn = false;
-                        }
-                    }
-                }
-
-                attrs = opts.Attribute("isStretchOutOn");
-                if (attrs is not null)
-                {
-                    if (!string.IsNullOrEmpty(attrs.Value))
-                    {
-                        if (attrs.Value == "True")
-                        {
-                            config.IsStretchOutOn = true;
-                        }
-                        else
-                        {
-                            config.IsStretchOutOn = false;
-                        }
-                    }
-                }
-
-                attrs = opts.Attribute("isEffectFadeInAndOutOn");
-                if (attrs is not null)
-                {
-                    if (!string.IsNullOrEmpty(attrs.Value))
-                    {
-                        if (attrs.Value == "True")
-                        {
-                            config.IsEffectFadeInAndOutOn = true;
-                        }
-                        else
-                        {
-                            config.IsEffectFadeInAndOutOn = false;
-                        }
-                    }
-                }
-
-                attrs = opts.Attribute("isEffectPageSlideOn");
-                if (attrs is not null)
-                {
-                    if (!string.IsNullOrEmpty(attrs.Value))
-                    {
-                        if (attrs.Value == "True")
-                        {
-                            config.IsEffectPageSlideOn = true;
-                        }
-                        else
-                        {
-                            config.IsEffectPageSlideOn = false;
-                        }
-                    }
-                }
-
-                attrs = opts.Attribute("isNoEffectsOn");
-                if (attrs is not null)
-                {
-                    if (!string.IsNullOrEmpty(attrs.Value))
-                    {
-                        if (attrs.Value == "True")
-                        {
-                            config.IsNoEffectsOn = true;
-                        }
-                        else
-                        {
-                            config.IsNoEffectsOn = false;
-                        }
-                    }
-                }
-
-                attrs = opts.Attribute("isEffectCrossfadeOn");
-                if (attrs is not null)
-                {
-                    if (!string.IsNullOrEmpty(attrs.Value))
-                    {
-                        if (attrs.Value == "True")
-                        {
-                            config.IsEffectCrossfadeOn = true;
-                        }
-                        else
-                        {
-                            config.IsEffectCrossfadeOn = false;
-                        }
-                    }
-                }
 
             }
             
@@ -536,131 +412,35 @@ internal sealed class ConfigurationService : IConfigurationService
         #endregion
 
         #region == Options ==
+
+        var opts = doc.CreateElement(string.Empty, "Options", string.Empty);
+
         /*
-        var opts = doc.CreateElement(string.Empty, "Options", string.Empty);
-
-        //
-        attrs = doc.CreateAttribute("AutoScrollToNowPlaying");
-        attrs.Value = config.IsAutoScrollToNowPlaying ? "True" : "False";
-        opts.SetAttributeNode(attrs);
-
-        //
-        attrs = doc.CreateAttribute("ArtistSortWithoutThePrefix");
-        attrs.Value = config.IsArtistSortWithoutThePrefix ? "True" : "False";
-        opts.SetAttributeNode(attrs);
-
-        //
-        attrs = doc.CreateAttribute("AlbumSortWithoutThePrefix");
-        attrs.Value = config.IsAlbumSortWithoutThePrefix ? "True" : "False";
-        opts.SetAttributeNode(attrs);
-
-        // 
-        attrs = doc.CreateAttribute("UpdateOnStartup");
-        attrs.Value = config.IsUpdateOnStartup ? "True" : "False";
-        opts.SetAttributeNode(attrs);
-
-        //
-        attrs = doc.CreateAttribute("ShowDebugWindow");
-        attrs.Value = config.IsShowDebugWindow ? "True" : "False";
-        opts.SetAttributeNode(attrs);
-
-        //
-        attrs = doc.CreateAttribute("SaveLog");
-        attrs.Value = config.IsSaveLog ? "True" : "False";
-        opts.SetAttributeNode(attrs);
-
-        //
-        attrs = doc.CreateAttribute("DownloadAlbumArt");
-        attrs.Value = config.IsDownloadAlbumArt ? "True" : "False";
-        opts.SetAttributeNode(attrs);
-
-        //
-        attrs = doc.CreateAttribute("DownloadAlbumArtEmbeddedUsingReadPicture");
-        attrs.Value = config.IsDownloadAlbumArtEmbeddedUsingReadPicture ? "True" : "False";
-        opts.SetAttributeNode(attrs);
-
-        //
-        attrs = doc.CreateAttribute("ForceSetVolumeExplicitly");
-        attrs.Value = config.IsForceSetVolumeExplicitly ? "True" : "False";
-        opts.SetAttributeNode(attrs);
-
-        /// 
-        root.AppendChild(opts);
-        */
-        #endregion
-
-        #region == Options ==
-
-        var opts = doc.CreateElement(string.Empty, "Options", string.Empty);
-
         // LastOpenedDirectory
         attrs = doc.CreateAttribute("lastOpenedDirectory");
         attrs.Value = !string.IsNullOrEmpty(config.LastOpenedDirectory) ? config.LastOpenedDirectory : string.Empty;
         opts.SetAttributeNode(attrs);
+        */
 
-        //IsShuffleOn
-        attrs = doc.CreateAttribute("isShuffleOn");
-        attrs.Value = config.IsShuffleOn ? "True" : "False";
+        attrs = doc.CreateAttribute("IsSaveLog");
+        attrs.Value = config.IsSaveLog ? "True" : "False";
         opts.SetAttributeNode(attrs);
 
-        //IsRepeatOn
-        attrs = doc.CreateAttribute("isRepeatOn");
-        attrs.Value = config.IsRepeatOn ? "True" : "False";
+        attrs = doc.CreateAttribute("IsNavigationViewMenuOpen");
+        attrs.Value = config.IsNavigationViewMenuOpen ? "True" : "False";
         opts.SetAttributeNode(attrs);
 
-        //#IsStayOnTop
-        //#IsSlideshowOn
-        //#IsFullscreenOn
-
-        attrs = doc.CreateAttribute("isOverrideSystemDpiScalingFactorOn");
-        attrs.Value = config.IsOverrideSystemDpiScalingFactorOn ? "True" : "False";
+        attrs = doc.CreateAttribute("IsOnBtcJpy");
+        attrs.Value = config.IsOnBtcJpy ? "True" : "False";
         opts.SetAttributeNode(attrs);
 
-        //IsViewImageListOn
-        attrs = doc.CreateAttribute("isViewImageListOn");
-        attrs.Value = config.IsViewImageListOn ? "True" : "False";
+        attrs = doc.CreateAttribute("IsOnXrpJpy");
+        attrs.Value = config.IsOnXrpJpy ? "True" : "False";
         opts.SetAttributeNode(attrs);
 
-        //IsViewFilePathPopupOn
-        attrs = doc.CreateAttribute("isViewFilePathPopupOn");
-        attrs.Value = config.IsViewFilePathPopupOn ? "True" : "False";
+        attrs = doc.CreateAttribute("IsOnEthJpy");
+        attrs.Value = config.IsOnEthJpy ? "True" : "False";
         opts.SetAttributeNode(attrs);
-
-        //SlideshowTimerInterval
-        attrs = doc.CreateAttribute("slideshowTimerInterval");
-        attrs.Value = config.SlideshowTimerInterval.ToString();
-        opts.SetAttributeNode(attrs);
-
-        //IsStretchInOn
-        attrs = doc.CreateAttribute("isStretchInOn");
-        attrs.Value = config.IsStretchInOn ? "True" : "False";
-        opts.SetAttributeNode(attrs);
-
-        //IsStretchOutOn
-        attrs = doc.CreateAttribute("isStretchOutOn");
-        attrs.Value = config.IsStretchOutOn ? "True" : "False";
-        opts.SetAttributeNode(attrs);
-
-        //IsEffectFadeInAndOutOn
-        attrs = doc.CreateAttribute("isEffectFadeInAndOutOn");
-        attrs.Value = config.IsEffectFadeInAndOutOn ? "True" : "False";
-        opts.SetAttributeNode(attrs);
-
-        //IsEffectPageSlideOn
-        attrs = doc.CreateAttribute("isEffectPageSlideOn");
-        attrs.Value = config.IsEffectPageSlideOn ? "True" : "False";
-        opts.SetAttributeNode(attrs);
-
-        //IsNoEffectsOn
-        attrs = doc.CreateAttribute("isNoEffectsOn");
-        attrs.Value = config.IsNoEffectsOn ? "True" : "False";
-        opts.SetAttributeNode(attrs);
-
-        //IsEffectCrossfadeOn
-        attrs = doc.CreateAttribute("isEffectCrossfadeOn");
-        attrs.Value = config.IsEffectCrossfadeOn ? "True" : "False";
-        opts.SetAttributeNode(attrs);
-
 
         /// 
         root.AppendChild(opts);
@@ -698,4 +478,5 @@ internal sealed class ConfigurationService : IConfigurationService
         }
 
     }
+
 }
