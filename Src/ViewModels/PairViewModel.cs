@@ -58,7 +58,7 @@ public partial class PairViewModel : ObservableObject
         // Chart update timer
         _dispatcherTimerChart.Tick += OnTimerChart;
         _dispatcherTimerChart.Interval = chartUpdateInterval;  // Temp testing. new(0, 5, 0);
-        _dispatcherTimerChart.Start();
+        _dispatcherTimerChart.Start(); // Testing without updating the chart.. using ticker as we go.
 
     }
 
@@ -1519,11 +1519,14 @@ public partial class PairViewModel : ObservableObject
             return;
         }
 
+        // We need to update the charts.
+        /*
         if (!IsSelectedActive)
         {
             //Debug.WriteLine($"UpdateTickerData() skipped for {data.TickerPair} at {DateTimeOffset.FromUnixTimeMilliseconds(data.Timestamp).LocalDateTime:yyyy-MM-dd HH:mm:ss} because IsSelectedActive is false.");
             return;
         }
+        */
 
         /*
         PairCodes pair = data.TickerPair;
@@ -1547,26 +1550,25 @@ public partial class PairViewModel : ObservableObject
             return;
         }
 
-        // Update the LTP and chart section only if it has changed for performance reasons like high CPU usage.
-        if (data.Last != Ltp)
+        /*
+        Dispatcher.UIThread.Post(() =>
         {
-            Dispatcher.UIThread.Post(() =>
-            {
-                Ltp = data.Last;
+        });
+        */
 
-                if (Sections[0] is RectangularSection section)
-                {
-                    section.Yi = (double)data.Last;
-                    section.Yj = (double)data.Last;
-                }
+        Ltp = data.Last;
 
-                DateTime timeStamp = DateTimeOffset.FromUnixTimeMilliseconds(data.Timestamp).LocalDateTime;
-                UpdateCurrentCandle(timeStamp, data.Last);
-            });
+        if (Sections[0] is RectangularSection section)
+        {
+            section.Yi = (double)data.Last;
+            section.Yj = (double)data.Last;
         }
+
+        DateTime timeStamp = DateTimeOffset.FromUnixTimeMilliseconds(data.Timestamp).LocalDateTime;
+        UpdateCurrentCandle(timeStamp, data);
     }
 
-    private void UpdateCurrentCandle(DateTime tickTime, decimal lastPrice)
+    private void UpdateCurrentCandle(DateTime tickTime, BitbankTickerData data)
     {
         if (Series[1].Values is not ObservableCollection<FinancialPoint> candles) { return; }
 
@@ -1583,16 +1585,41 @@ public partial class PairViewModel : ObservableObject
                 continue;
             }
 
-            Debug.WriteLine($"UpdateCurrentCandle() found existing candle for {PairCode} at {candleStart:yyyy-MM-dd HH:mm:ss} with price {lastPrice:N0}");
-            var price = (double)lastPrice;
+            //Debug.WriteLine($"UpdateCurrentCandle() found existing candle for {PairCode} at {candleStart:yyyy-MM-dd HH:mm:ss} with price {lastPrice:N0}");
+
+            var price = (double)data.Last;
+
+            // Update the chart only if it has changed for performance reasons like high CPU usage.
+            if (candle.Close == price)
+            {
+                Debug.WriteLine($"UpdateCurrentCandle() skipping candle update for {PairCode} at {candleStart:yyyy-MM-dd HH:mm:ss} because the close price is already {data.Last:N0}");
+                return;
+            }
+
+            Debug.WriteLine($"UpdateCurrentCandle() updating candle for {PairCode} at {candleStart:yyyy-MM-dd HH:mm:ss} with price {data.Last:N0}");
             candle.Close = price;
             candle.High = Math.Max(candle.High, price);
             candle.Low = Math.Min(candle.Low, price);
+
             return;
         }
 
-        // TODO:
-        Debug.WriteLine($"If we reach here, no existing candle matched; create a new one. {PairCode} at {candleStart:yyyy-MM-dd HH:mm:ss} with price {lastPrice:N0}");
+        
+        Debug.WriteLine($"If we reach here, no existing candle matched; create a new one. {PairCode} at {candleStart:yyyy-MM-dd HH:mm:ss} with price {data.Last:N0}");
+
+        //DateTime timestamp = DateTimeOffset.FromUnixTimeMilliseconds(data.Timestamp).LocalDateTime;
+
+        if (Series[0].Values is ObservableCollection<DateTimePoint> volumes)
+        {
+            // TODO: we need to load chart independently after all.
+            // data.Vol is 24-hour rolling volume. So, we can't use it here.
+            //volumes.Add(new DateTimePoint(candleStart, (double)data.Vol));
+        }
+        if (Series[1].Values is ObservableCollection<FinancialPoint>)
+        {
+            candles.Add(new FinancialPoint(candleStart, (double)data.Last, (double)data.Last, (double)data.Last, (double)data.Last));
+        }
+
     }
 
     private static DateTime GetCandleStart(DateTime time, CandleTypes candleType)
@@ -2032,12 +2059,12 @@ public partial class PairViewModel : ObservableObject
             }
             else
             {
-                Debug.WriteLine("GetCandlestick: GetCandlestick returned error");
+                Debug.WriteLine($"GetCandlestick for {pair}: GetCandlestick returned error");
             }
         }
         else
         {
-            Debug.WriteLine("GetCandlestick: GetCandlestick returned null");
+            Debug.WriteLine($"GetCandlestick for {pair}: GetCandlestick returned null");
         }
         return null;
     }
@@ -2092,22 +2119,32 @@ public partial class PairViewModel : ObservableObject
 
                 if (index >= 0)
                 {
-                    // Same timestamp: update the in-progress candle.
-                    /*
-                    prices[index] = price;
-                    volumes[index] = volume;
-                    */
-                    prices[index].Low = price.Low;
-                    prices[index].High = price.High;
-                    prices[index].Open = price.Open;
-                    prices[index].Close = price.Close;
+                    // Same timestamp: update the existing candle if it (close) has changed.
+                    if ((prices[index].Close != price.Close) ||
+                        (prices[index].Low != price.Low) ||
+                        (prices[index].High != price.High) ||
+                        (prices[index].Open != price.Open))
+                    {
+                        // Same timestamp: update the in-progress candle.
+                        /*
+                        // not good for performance. It will cause the chart to redraw.
+                        prices[index] = price;
+                        volumes[index] = volume;
+                        */
+                        prices[index].Low = price.Low;
+                        prices[index].High = price.High;
+                        prices[index].Open = price.Open;
+                        prices[index].Close = price.Close;
 
-                    volumes[index].DateTime = volume.DateTime;
-                    volumes[index].Value = volume.Value;
+                        //Debug.WriteLine($"Updated chart candle for {PairCode} at {candle.TimeStamp:yyyy-MM-dd HH:mm:ss}");
+                        Debug.WriteLine($"UpdateChartAsync Updated Candlestick for {PairCode}: {candle.TimeStamp:yyyy-MM-dd HH:mm:ss} Open: {candle.Open}, High: {candle.High}, Low: {candle.Low}, Close: {candle.Close}, Volume: {candle.Volume}");
+                    }
 
-                    //Debug.WriteLine($"Updated chart candle for {PairCode} at {candle.TimeStamp:yyyy-MM-dd HH:mm:ss}");
-                    Debug.WriteLine($"UpdateChartAsync Updated Candlestick: {candle.TimeStamp:yyyy-MM-dd HH:mm:ss} Open: {candle.Open}, High: {candle.High}, Low: {candle.Low}, Close: {candle.Close}, Volume: {candle.Volume}");
-
+                    if (volumes[index].Value != volume.Value)
+                    {
+                        volumes[index].Value = volume.Value;
+                        volumes[index].DateTime = volume.DateTime;
+                    }
                 }
                 else
                 {
@@ -2118,7 +2155,7 @@ public partial class PairViewModel : ObservableObject
                     volumes.Insert(index, volume);
 
                     //Debug.WriteLine($"Inserted new chart candle for {PairCode} at {candle.TimeStamp:yyyy-MM-dd HH:mm:ss}");
-                    Debug.WriteLine($"UpdateChartAsync Inserted Candlestick: {candle.TimeStamp:yyyy-MM-dd HH:mm:ss} Open: {candle.Open}, High: {candle.High}, Low: {candle.Low}, Close: {candle.Close}, Volume: {candle.Volume}");
+                    Debug.WriteLine($"UpdateChartAsync Inserted Candlestick for {PairCode}: {candle.TimeStamp:yyyy-MM-dd HH:mm:ss} Open: {candle.Open}, High: {candle.High}, Low: {candle.Low}, Close: {candle.Close}, Volume: {candle.Volume}");
 
                 }
             }
