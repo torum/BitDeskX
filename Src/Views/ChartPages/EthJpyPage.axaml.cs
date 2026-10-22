@@ -1,5 +1,7 @@
 using Avalonia.Controls;
 using BitDesk.ViewModels;
+using FluentAvalonia.UI.Controls;
+using FluentAvalonia.UI.Navigation;
 using System.Diagnostics;
 using System.Linq;
 
@@ -23,6 +25,7 @@ public partial class EthJpyPage : UserControl
         InitializeComponent();
 
         this.Loaded += EthJpyPage_Loaded;
+        AddHandler(FAFrame.NavigatedToEvent, OnNavigatedTo);
     }
 
     private void EthJpyPage_Loaded(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -30,13 +33,9 @@ public partial class EthJpyPage : UserControl
         //Debug.WriteLine("EthJpyPage loaded. DataContext: " + (this.DataContext?.ToString() ?? "null"));
     }
 
-    // A custom method to receive the parameter
-    public void InitializeNavigationParameter(object parameter)
+    private void OnNavigatedTo(object? sender, FANavigationEventArgs e)
     {
-        if (parameter is null)
-        {
-            return;
-        }
+        //Debug.WriteLine("EthJpyPage navigated to. Parameter: " + (e.Parameter?.ToString() ?? "null"));
     }
 
 }

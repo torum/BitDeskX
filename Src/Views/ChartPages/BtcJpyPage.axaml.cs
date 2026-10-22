@@ -1,5 +1,9 @@
 using Avalonia.Controls;
 using BitDesk.ViewModels;
+using FluentAvalonia;
+using FluentAvalonia.Core;
+using FluentAvalonia.UI.Controls;
+using FluentAvalonia.UI.Navigation;
 using System.Diagnostics;
 using System.Linq;
 
@@ -23,20 +27,17 @@ public partial class BtcJpyPage : UserControl
         InitializeComponent();
 
         this.Loaded += BtcJpyPage_Loaded;
+        AddHandler(FAFrame.NavigatedToEvent, OnNavigatedTo);
     }
 
     private void BtcJpyPage_Loaded(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        //Debug.WriteLine("BtcJpyPage loaded. DataContext: " + (this.DataContext?.ToString() ?? "null"));
+        Debug.WriteLine("BtcJpyPage loaded. DataContext: " + (this.DataContext?.ToString() ?? "null"));
     }
 
-    // A custom method to receive the parameter
-    public void InitializeNavigationParameter(object parameter)
+    private void OnNavigatedTo(object? sender, FANavigationEventArgs e)
     {
-        if (parameter is null)
-        {
-            return;
-        }
+        //Debug.WriteLine("BtcJpyPage navigated to. Parameter: " + (e.Parameter?.ToString() ?? "null"));
     }
 
 }

@@ -353,16 +353,9 @@
                             </SplitView.Pane>
 
                             <SplitView.Content>
-                                <Grid RowDefinitions="{OnPlatform Default='0,*', Windows='32,*', Linux='32,*'}">
-                                    <!-- Added for v12.0.2 -->
-                                    <Border Grid.Row="0"
-                                            WindowDecorationProperties.ElementRole="TitleBar" 
-                                            Background="{DynamicResource NavigationViewContentBackground}"
-                                            BorderBrush="{DynamicResource NavigationViewContentGridBorderBrush}"
-                                            BorderThickness="{DynamicResource NavigationViewContentGridBorderThickness}">
-                                    </Border>
+                                <Grid>
 								    <Border Name="ContentGridBorder"
-                                            Grid.Row="1"
+                                            Grid.Row="0" Grid.RowSpan="2"
                                             ClipToBounds="True"
                                             Background="{DynamicResource NavigationViewContentBackground}"
                                             BorderBrush="{DynamicResource NavigationViewContentGridBorderBrush}"

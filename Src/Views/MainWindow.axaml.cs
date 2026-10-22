@@ -298,34 +298,6 @@ public partial class MainWindow : Window
             return;
         }
 
-        if (this.NavigateViewControl is null)
-        {
-            return;
-        }
-
-        if (this.DataContext is not MainViewModel vm)
-        {
-            return;
-        }
-        /*
-        vm.SelectedNodeMenu = vm.MainMenuItems.FirstOrDefault();
-        vm.SelectedNodeMenu?.Selected = true;
-
-        if (vm.IsNavigationViewMenuOpen)
-        {
-            foreach (var fuga in vm.MainMenuItems)
-            {
-                if (fuga is NodeMenuLibrary lib)
-                {
-                    lib.Expanded = true;
-                }
-                else if (fuga is NodeMenuPlaylists plt)
-                {
-                    plt.Expanded = true;
-                }
-            }
-        }
-        */
     }
 
     private void NavigationView_SelectionChanged(object? sender, FluentAvalonia.UI.Controls.FANavigationViewSelectionChangedEventArgs e)
@@ -335,28 +307,6 @@ public partial class MainWindow : Window
             return;
         }
 
-        if (this.DataContext is not MainViewModel vm)
-        {
-            return;
-        }
-
-        /*
-        if (e.SelectedItem is null)
-        {
-            vm.SelectedNodeMenu = null;
-            return;
-        }
-
-        if (e.SelectedItem is NodeTree)
-        {
-            vm.SelectedNodeMenu = e.SelectedItem as NodeTree;
-        }
-        else
-        {
-            Debug.WriteLine("e.SelectedItem is not NodeTree. @NavigationView_SelectionChanged");
-            vm.SelectedNodeMenu = null;
-        }
-        */
     }
 
     private async void NavigationView_ItemInvoked(object? sender, FluentAvalonia.UI.Controls.FANavigationViewItemInvokedEventArgs e)
@@ -443,21 +393,6 @@ public partial class MainWindow : Window
 
     private void RootFrame_Navigated(object sender, FluentAvalonia.UI.Navigation.FANavigationEventArgs e)
     {
-        /*
-        // e.Source is..
-        if (e.Content is BtcJpyPage btcJpyPage)
-        {
-            btcJpyPage.InitializeNavigationParameter(e.Parameter);
-        }
-        else if (e.Content is EthJpyPage ethJpyPage)
-        {
-            ethJpyPage.InitializeNavigationParameter(e.Parameter);
-        }
-        else if (e.Content is XrpJpyPage xrpJpyPage)
-        {
-            xrpJpyPage.InitializeNavigationParameter(e.Parameter);
-        }
-        */
-
+        //
     }
 }

@@ -6,8 +6,8 @@
              x:Class="BitDesk.Views.SettingsPage"
              xmlns:vm="using:BitDesk.ViewModels"
              x:DataType="vm:MainViewModel">
-    <Grid Margin="24">
-        <StackPanel>
+    <Grid x:Name="ContentArea" Margin="0,32,0,0">
+        <StackPanel Margin="24">
             <StackPanel Orientation="Horizontal" Margin="24,12,0,0">
                 <Viewbox Width="16">
                     <PathIcon Data="{StaticResource BtcIconData}"/>
