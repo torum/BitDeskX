@@ -269,8 +269,6 @@ internal partial class MainViewModel : ObservableObject
 
             _isOnEthJpy = value;
 
-            IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = PairCodes.xrp_jpy });
-
             OnPropertyChanged(nameof(IsOnEthJpy));
             OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
             OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
@@ -298,6 +296,7 @@ internal partial class MainViewModel : ObservableObject
             _isOnLtcJpy = value;
             OnPropertyChanged(nameof(IsOnLtcJpy));
             OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
+            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
         }
     }
 
@@ -322,6 +321,7 @@ internal partial class MainViewModel : ObservableObject
             _isOnBccJpy = value;
             OnPropertyChanged(nameof(IsOnBccJpy));
             OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
+            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
         }
     }
 
@@ -346,6 +346,7 @@ internal partial class MainViewModel : ObservableObject
             _isOnMonaJpy = value;
             OnPropertyChanged(nameof(IsOnMonaJpy));
             OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
+            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
         }
     }
 
@@ -370,6 +371,7 @@ internal partial class MainViewModel : ObservableObject
             _isOnXlmJpy = value;
             OnPropertyChanged(nameof(IsOnXlmJpy));
             OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
+            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
         }
     }
 
@@ -394,6 +396,7 @@ internal partial class MainViewModel : ObservableObject
             _isOnQtumJpy = value;
             OnPropertyChanged(nameof(IsOnQtumJpy));
             OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
+            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
         }
     }
 
@@ -418,6 +421,7 @@ internal partial class MainViewModel : ObservableObject
             _isOnBatJpy = value;
             OnPropertyChanged(nameof(IsOnBatJpy));
             OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
+            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
         }
     }
 
@@ -442,6 +446,7 @@ internal partial class MainViewModel : ObservableObject
             _isOnOmgJpy = value;
             OnPropertyChanged(nameof(IsOnOmgJpy));
             OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
+            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
         }
     }
 
@@ -466,6 +471,7 @@ internal partial class MainViewModel : ObservableObject
             _isOnXymJpy = value;
             OnPropertyChanged(nameof(IsOnXymJpy));
             OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
+            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
         }
     }
 
@@ -490,6 +496,7 @@ internal partial class MainViewModel : ObservableObject
             _isOnLinkJpy = value;
             OnPropertyChanged(nameof(IsOnLinkJpy));
             OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
+            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
         }
     }
 
@@ -514,6 +521,7 @@ internal partial class MainViewModel : ObservableObject
             _isOnMkrJpy = value;
             OnPropertyChanged(nameof(IsOnMkrJpy));
             OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
+            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
         }
     }
 
@@ -538,6 +546,7 @@ internal partial class MainViewModel : ObservableObject
             _isOnBobaJpy = value;
             OnPropertyChanged(nameof(IsOnBobaJpy));
             OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
+            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
         }
     }
 
@@ -562,6 +571,7 @@ internal partial class MainViewModel : ObservableObject
             _isOnEnjJpy = value;
             OnPropertyChanged(nameof(IsOnEnjJpy));
             OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
+            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
         }
     }
 
@@ -586,6 +596,7 @@ internal partial class MainViewModel : ObservableObject
             _isOnMaticJpy = value;
             OnPropertyChanged(nameof(IsOnMaticJpy));
             OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
+            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
         }
     }
 
@@ -610,6 +621,7 @@ internal partial class MainViewModel : ObservableObject
             _isOnDotJpy = value;
             OnPropertyChanged(nameof(IsOnDotJpy));
             OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
+            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
         }
     }
 
@@ -634,6 +646,7 @@ internal partial class MainViewModel : ObservableObject
             _isOnDogeJpy = value;
             OnPropertyChanged(nameof(IsOnDogeJpy));
             OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
+            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
         }
     }
 
@@ -658,6 +671,7 @@ internal partial class MainViewModel : ObservableObject
             _isOnAstrJpy = value;
             OnPropertyChanged(nameof(IsOnAstrJpy));
             OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
+            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
         }
     }
 
@@ -682,6 +696,7 @@ internal partial class MainViewModel : ObservableObject
             _isOnAdaJpy = value;
             OnPropertyChanged(nameof(IsOnAdaJpy));
             OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
+            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
         }
     }
 
@@ -706,6 +721,7 @@ internal partial class MainViewModel : ObservableObject
             _isOnAvaxJpy = value;
             OnPropertyChanged(nameof(IsOnAvaxJpy));
             OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
+            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
         }
     }
 
@@ -730,6 +746,7 @@ internal partial class MainViewModel : ObservableObject
             _isOnAxsJpy = value;
             OnPropertyChanged(nameof(IsOnAxsJpy));
             OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
+            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
         }
     }
 
@@ -754,6 +771,7 @@ internal partial class MainViewModel : ObservableObject
             _isOnFlrJpy = value;
             OnPropertyChanged(nameof(IsOnFlrJpy));
             OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
+            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
         }
     }
 
@@ -778,6 +796,7 @@ internal partial class MainViewModel : ObservableObject
             _isOnSandJpy = value;
             OnPropertyChanged(nameof(IsOnSandJpy));
             OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
+            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
         }
     }
 
