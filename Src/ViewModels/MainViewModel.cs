@@ -23,7 +23,8 @@ internal record IsEnabledState
 
 internal partial class MainViewModel : ObservableObject
 {
-    private readonly bool _isTestMode = false;
+    private readonly bool _isWebSocketOn = true;
+    private readonly bool _isLiveChartsOn = true;
 
     private readonly IBitbankStreamService _bitbankStreamService;
     private readonly IConfigurationService _configurationService;
@@ -57,7 +58,8 @@ internal partial class MainViewModel : ObservableObject
         _bitbankStreamService.TickerUpdated += OnTickerService_TickerUpdated;
 
         // For developing purposes, we can set this to true to avoid starting the ticker service and charts loading.
-        _isTestMode = false;
+        _isWebSocketOn = true;
+        _isLiveChartsOn = true;
 
 #if DEBUG
         IsSaveLog = true;
@@ -1199,7 +1201,7 @@ internal partial class MainViewModel : ObservableObject
     {
         _bitbankStreamService.Initialize(Pairs.Where(x => x.IsEnabled).Select(x => x.PairCode).ToList());
 
-        if (!_isTestMode)
+        if (_isWebSocketOn)
             await _bitbankStreamService.StartAsync();
     }
 
@@ -1235,7 +1237,7 @@ internal partial class MainViewModel : ObservableObject
                 }
             }
             
-            if (!_isTestMode)
+            if (_isLiveChartsOn)
                 await pairVM.InitializeAndLoadAsync();
         }
         else
@@ -1252,7 +1254,7 @@ internal partial class MainViewModel : ObservableObject
         {
             pairVM.IsSelectedActive = true;
 
-            if (!_isTestMode)
+            if (_isLiveChartsOn)
                 await pairVM.InitializeAndLoadAsync();
         }
     }

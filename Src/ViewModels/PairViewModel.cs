@@ -50,12 +50,14 @@ public partial class PairViewModel : ObservableObject
         _depthGrouping100 = grouping100;
         _depthGrouping1000 = grouping1000;
 
-
+        // Temp testing.
         ChangeCandleType(CandleTypes.OneHour);
+
+        IsChartTooltipVisible = false;
 
         // Chart update timer
         _dispatcherTimerChart.Tick += OnTimerChart;
-        _dispatcherTimerChart.Interval = new(0, 1, 0); // Temp testing. //chartUpdateInterval;
+        _dispatcherTimerChart.Interval = chartUpdateInterval;  // Temp testing. new(0, 5, 0);
         _dispatcherTimerChart.Start();
 
     }
@@ -309,6 +311,13 @@ public partial class PairViewModel : ObservableObject
             }
 
             _isEnabled = value;
+
+            // When disabled, reset the chart loaded flag so that it will be reloaded when enabled again.
+            if (!_isEnabled)
+            {
+                IsChartInitAndLoaded = false;
+            }
+
             OnPropertyChanged(nameof(IsEnabled));
         }
     }
@@ -366,7 +375,7 @@ public partial class PairViewModel : ObservableObject
         }
     }
 
-    private bool _isChartTooltipVisible = true;
+    private bool _isChartTooltipVisible = false;
     public bool IsChartTooltipVisible
     {
         get => _isChartTooltipVisible;
@@ -391,7 +400,7 @@ public partial class PairViewModel : ObservableObject
         }
     }
 
-    private LiveChartsCore.Measure.TooltipPosition _isChartTooltipVisibleTemp = LiveChartsCore.Measure.TooltipPosition.Center;
+    private LiveChartsCore.Measure.TooltipPosition _isChartTooltipVisibleTemp = LiveChartsCore.Measure.TooltipPosition.Hidden;
     public LiveChartsCore.Measure.TooltipPosition IsChartTooltipVisibleTemp
     {
         get => _isChartTooltipVisibleTemp;
@@ -1190,7 +1199,7 @@ public partial class PairViewModel : ObservableObject
             ScalesYAt = 1,
             Stroke = new SolidColorPaint
             {
-                Color = SKColors.Silver.WithAlpha(80),
+                Color = SKColors.OrangeRed.WithAlpha(80),
                 StrokeThickness = 1,
                 PathEffect = new DashEffect(new float[] { 6, 6 })
             }
@@ -1538,19 +1547,23 @@ public partial class PairViewModel : ObservableObject
             return;
         }
 
-        Dispatcher.UIThread.Post(() =>
+        // Update the LTP and chart section only if it has changed for performance reasons like high CPU usage.
+        if (data.Last != Ltp)
         {
-            Ltp = data.Last;
-
-            if (Sections[0] is RectangularSection section)
+            Dispatcher.UIThread.Post(() =>
             {
-                section.Yi = (double)data.Last;
-                section.Yj = (double)data.Last;
-            }
+                Ltp = data.Last;
 
-            DateTime timeStamp = DateTimeOffset.FromUnixTimeMilliseconds(data.Timestamp).LocalDateTime;
-            UpdateCurrentCandle(timeStamp, data.Last);
-        });
+                if (Sections[0] is RectangularSection section)
+                {
+                    section.Yi = (double)data.Last;
+                    section.Yj = (double)data.Last;
+                }
+
+                DateTime timeStamp = DateTimeOffset.FromUnixTimeMilliseconds(data.Timestamp).LocalDateTime;
+                UpdateCurrentCandle(timeStamp, data.Last);
+            });
+        }
     }
 
     private void UpdateCurrentCandle(DateTime tickTime, decimal lastPrice)
@@ -1566,9 +1579,11 @@ public partial class PairViewModel : ObservableObject
 
             if (candle.Date != candleStart)
             {
+                Debug.WriteLine($"UpdateCurrentCandle() skipping candle for {PairCode} at {candle.Date:yyyy-MM-dd HH:mm:ss} because it does not match the current candle start time {candleStart:yyyy-MM-dd HH:mm:ss}");
                 continue;
             }
 
+            Debug.WriteLine($"UpdateCurrentCandle() found existing candle for {PairCode} at {candleStart:yyyy-MM-dd HH:mm:ss} with price {lastPrice:N0}");
             var price = (double)lastPrice;
             candle.Close = price;
             candle.High = Math.Max(candle.High, price);
@@ -1576,12 +1591,12 @@ public partial class PairViewModel : ObservableObject
             return;
         }
 
-        // If we reach here, no existing candle matched; create a new one.
+        // TODO:
+        Debug.WriteLine($"If we reach here, no existing candle matched; create a new one. {PairCode} at {candleStart:yyyy-MM-dd HH:mm:ss} with price {lastPrice:N0}");
     }
 
     private static DateTime GetCandleStart(DateTime time, CandleTypes candleType)
     {
-
         var interval = candleType switch { CandleTypes.OneMin => TimeSpan.FromMinutes(1), CandleTypes.FiveMin => TimeSpan.FromMinutes(5), CandleTypes.FifteenMin => TimeSpan.FromMinutes(15), CandleTypes.ThirtyMin => TimeSpan.FromMinutes(30), CandleTypes.OneHour => TimeSpan.FromHours(1), CandleTypes.FourHour => TimeSpan.FromHours(4), CandleTypes.EightHour => TimeSpan.FromHours(8), CandleTypes.TwelveHour => TimeSpan.FromHours(12), _ => TimeSpan.Zero };
 
         if (interval != TimeSpan.Zero)
@@ -1821,19 +1836,19 @@ public partial class PairViewModel : ObservableObject
 
         if (ct == CandleTypes.OneMin)
         {
-            daysOrYearsCountToGetData = 2;
+            daysOrYearsCountToGetData = 1;
         }
         else if (ct == CandleTypes.FiveMin)
         {
-            daysOrYearsCountToGetData = 2;
+            daysOrYearsCountToGetData = 1;
         }
         else if (ct == CandleTypes.FifteenMin)
         {
-            daysOrYearsCountToGetData = 4;
+            daysOrYearsCountToGetData = 2;
         }
         else if (ct == CandleTypes.ThirtyMin)
         {
-            daysOrYearsCountToGetData = 4;
+            daysOrYearsCountToGetData = 3;
         }
         else if (ct == CandleTypes.OneHour)
         {
