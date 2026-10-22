@@ -14,6 +14,9 @@
 			<Thickness x:Key="NavigationViewMinimalContentGridBorderThickness">0,0,0,0</Thickness>
 			<Thickness x:Key="TopNavigationViewContentGridBorderThickness">0,0,0,0</Thickness>
 
+			
+			<Thickness x:Key="PageContentTitleBarSpacingThickness">0,36,0,0</Thickness>
+
 			<x:Double x:Key="NavigationViewItemOnLeftIconBoxHeight">15</x:Double>
 
 			<!-- fix non-align items -->

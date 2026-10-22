@@ -61,10 +61,10 @@ public partial class MainWindow : Window
         */
     ];
 
-    private int _winRestoreWidth { get; set; } = 1024;
-    private int _winRestoreHeight { get; set; } = 768;
-    private int _winRestoreTop { get; set; } = 100;
-    private int _winRestoreLeft { get; set; } = 100;
+    private int _winRestoreWidth = 1024;
+    private int _winRestoreHeight = 768;
+    private int _winRestoreTop = 100;
+    private int _winRestoreLeft = 100;
 
     private readonly IBitbankStreamService _tickerService;
     private readonly IConfigurationService _configurationService;

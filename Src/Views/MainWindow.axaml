@@ -72,7 +72,7 @@
 					</ui:FANavigationViewItem>
 				</ui:FANavigationView.MenuItems>
 
-				<Grid RowDefinitions="32,*">
+				<Grid RowDefinitions="36,*">
 					<Border Grid.Row="0" WindowDecorationProperties.ElementRole="TitleBar" Background="Transparent"></Border>				
 					<ui:FAFrame x:Name="RootFrame" Grid.Row="0" Grid.RowSpan="2" Navigated="RootFrame_Navigated"/>
 				</Grid>

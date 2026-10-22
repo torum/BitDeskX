@@ -32,7 +32,7 @@ public partial class BtcJpyPage : UserControl
 
     private void BtcJpyPage_Loaded(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        Debug.WriteLine("BtcJpyPage loaded. DataContext: " + (this.DataContext?.ToString() ?? "null"));
+        //Debug.WriteLine("BtcJpyPage loaded. DataContext: " + (this.DataContext?.ToString() ?? "null"));
     }
 
     private void OnNavigatedTo(object? sender, FANavigationEventArgs e)

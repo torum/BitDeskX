@@ -8,6 +8,6 @@
             x:DataType="vm:PairViewModel"
              x:Class="BitDesk.Views.ChartPages.EthJpyPage">
     <Grid x:Name="ContentArea">
-        <uc:ChartContent PairVM="{Binding}" Padding="0,32,0,0"/>
+        <uc:ChartContent PairVM="{Binding}" Padding="{DynamicResource PageContentTitleBarSpacingThickness}"/>
     </Grid>
 </UserControl>

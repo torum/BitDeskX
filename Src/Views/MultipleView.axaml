@@ -7,7 +7,7 @@
              xmlns:vm="clr-namespace:BitDesk.ViewModels"
              x:DataType="vm:MainViewModel"
              x:Class="BitDesk.Views.MultipleView">
-    <Grid x:Name="ContentArea" Margin="0,32,0,0">
+    <Grid x:Name="ContentArea" Margin="{DynamicResource PageContentTitleBarSpacingThickness}">
         <ScrollViewer VerticalScrollBarVisibility="Auto">
         <ItemsControl ItemsSource="{Binding EnabledPairs}" Margin="12,0,0,0">
             <ItemsControl.ItemsPanel>
