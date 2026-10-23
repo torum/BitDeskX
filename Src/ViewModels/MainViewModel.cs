@@ -1150,10 +1150,17 @@ internal partial class MainViewModel : ObservableObject
 
     public async Task InitializeAndStartAsync()
     {
-        _bitbankStreamService.Initialize(Pairs.Where(x => x.IsEnabled).Select(x => x.PairCode).ToList());
+        try
+        {
+            _bitbankStreamService.Initialize(Pairs.Where(x => x.IsEnabled).Select(x => x.PairCode).ToList());
 
-        if (_isWebSocketOn)
-            await _bitbankStreamService.StartAsync();
+            if (_isWebSocketOn)
+                await _bitbankStreamService.StartAsync();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error in InitializeAndStartAsync: {ex}");
+        }
     }
 
     public async Task SetSelectedPairFromCodeAsync(PairCodes pairCode)
@@ -1167,27 +1174,42 @@ internal partial class MainViewModel : ObservableObject
             //Debug.WriteLine($"SetSelectedPairFromCodeAsync() called for {pairCode} at {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
         }
 
-        SelectedPair = EnabledPairs.FirstOrDefault(x => x.PairCode == pairCode);
+        try
+        {
+            SelectedPair = EnabledPairs.FirstOrDefault(x => x.PairCode == pairCode);
 
-        if (SelectedPair is not null)
-        {
-            if (_isLiveChartsOn)
-                await SelectedPair.InitializeAndLoadAsync();
+            if (SelectedPair is not null)
+            {
+                if (_isLiveChartsOn)
+                    await SelectedPair.InitializeAndLoadAsync();
+            }
+            else
+            {
+                Debug.WriteLine($"No PairViewModel found for {pairCode} at {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+            }
         }
-        else
+        catch (Exception ex)
         {
-            Debug.WriteLine($"No PairViewModel found for {pairCode} at {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+            Debug.WriteLine($"Error in SetSelectedPairFromCodeAsync: {ex}");
         }
+
     }
 
     public async Task SetSelectedAllPairsFromCodeAsync()
     {
-        foreach (var pairVM in EnabledPairs)
+        try
         {
-            pairVM.IsSelectedActive = true;
+            foreach (var pairVM in EnabledPairs)
+            {
+                pairVM.IsSelectedActive = true;
 
-            if (_isLiveChartsOn)
-                await pairVM.InitializeAndLoadAsync();
+                if (_isLiveChartsOn)
+                    await pairVM.InitializeAndLoadAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error in SetSelectedAllPairsFromCodeAsync: {ex}");
         }
     }
 
@@ -1210,13 +1232,20 @@ internal partial class MainViewModel : ObservableObject
 
     private async void OnIsEnabledChanged(object? sender, IsEnabledState e)
     {
-        if (e.IsEnabled)
+        try
         {
-            await _bitbankStreamService.JoinRoomAsync(e.PairCode);
+            if (e.IsEnabled)
+            {
+                await _bitbankStreamService.JoinRoomAsync(e.PairCode);
+            }
+            else
+            {
+                await _bitbankStreamService.LeaveRoomAsync(e.PairCode);
+            }
         }
-        else
+        catch (Exception ex)
         {
-            await _bitbankStreamService.LeaveRoomAsync(e.PairCode);
+            Debug.WriteLine($"Error in OnIsEnabledChanged: {ex}");
         }
     }
 
@@ -1249,7 +1278,7 @@ internal partial class MainViewModel : ObservableObject
 
             await pairViewModel.UpdateTickerDataAsync(data);
 
-            await Dispatcher.UIThread.InvokeAsync(() =>
+            Dispatcher.UIThread.Post(() =>
             {
                 switch (data.TickerPair)
                 {
@@ -1329,7 +1358,6 @@ internal partial class MainViewModel : ObservableObject
                         throw new NotImplementedException();
                 }
             });
-
         }
         else
         {

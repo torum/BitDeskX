@@ -192,8 +192,6 @@ public partial class MainWindow : Window
                 await _mainViewModel.SetSelectedPairFromCodeAsync(pairViewModel.PairCode);
             }
         }
-
-
     }
 
     protected override void OnClosed(EventArgs e)

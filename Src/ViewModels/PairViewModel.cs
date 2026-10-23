@@ -1462,6 +1462,13 @@ public partial class PairViewModel : ObservableObject
         }
         else
         {
+
+            if (_isChartLoading)
+            {
+                Debug.WriteLine($"InitializeAndLoadAsync() skipped for {PairCode} because chart is already loading.");
+                return;
+            }
+
             _isChartLoading = true;
 
             Debug.WriteLine($"InitializeAndLoadAsync() started for {PairCode}");
@@ -1496,30 +1503,7 @@ public partial class PairViewModel : ObservableObject
             {
                 _isChartLoading = false;
             }
-
-
-
         }
-
-        /*
-        Task.Run(async () =>
-        {
-
-        });
-        */
-        /*
-        List<Ohlcv> res = await GetCandlesticks(this.PairCode, SelectedCandleType);
-
-        if (res == null) return;
-
-        if (res.Count > 0)
-        {
-            LoadChart(res, SelectedCandleType);
-
-            Sections[0].Yi = (double)_ltp;
-            Sections[0].Yj = (double)_ltp;
-        }
-        */
     }
 
     public async Task UpdateTickerDataAsync(BitbankTickerData data)
@@ -1736,11 +1720,11 @@ public partial class PairViewModel : ObservableObject
 
         if (res.Count > 0)
         {
-            await DoLoadChartAsync(res, ct);
+            DoLoadChart(res, ct);
         }
     }
 
-    private async Task DoLoadChartAsync(List<Ohlcv> list, CandleTypes ct)
+    private void DoLoadChart(List<Ohlcv> list, CandleTypes ct)
     {
         // Need to be here. not static and all.
         if (_currencyFormstString.Equals("C3"))
@@ -2141,7 +2125,17 @@ public partial class PairViewModel : ObservableObject
 
     private void OnTimerChart(object? source, object e)
     {
-        _ = UpdateChartAsync();
+        Dispatcher.UIThread.Post(async() =>
+        {
+            try
+            {
+                await UpdateChartAsync();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"OnTimerChart() exception for {PairCode}: {ex.Message}");
+            }
+        });
     }
 
     private async Task UpdateChartAsync()
