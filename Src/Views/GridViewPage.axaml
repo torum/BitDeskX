@@ -26,7 +26,11 @@
                                 Background="{DynamicResource AcrylicInAppFillColorDefaultBrush}" 
                                 BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" 
                                 BorderThickness="1">                        
-                            <TextBlock Text="{Binding PairString}" FontWeight="Bold" Margin="4" />
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding PairString}" FontWeight="Normal" Margin="4" />
+                                <TextBlock Text="{Binding LtpString}" FontWeight="Normal" Margin="4" />
+                                <TextBlock Text="{Binding PercentChange}" FontWeight="Normal" Margin="4" />
+                            </StackPanel>
                         </Border>
 
                         <views:ChartContent PairVM="{Binding}" Padding="2"/>

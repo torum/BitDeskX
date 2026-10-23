@@ -838,6 +838,26 @@ internal partial class MainViewModel : ObservableObject
 
     #endregion
 
+    #region == LTP PercentChange ==
+
+    private string _ltpBtcJpyPercentChange = "";
+    public string LtpBtcJpyPercentChange
+    {
+        get => _ltpBtcJpyPercentChange;
+        set
+        {
+            if (_ltpBtcJpyPercentChange == value)
+            {
+                return;
+            }
+
+            _ltpBtcJpyPercentChange = value;
+            OnPropertyChanged(nameof(LtpBtcJpyPercentChange));
+        }
+    }
+
+    #endregion
+
     #region == LTP ==
 
     private string _ltpBtcJpy = "...";
@@ -1364,12 +1384,16 @@ internal partial class MainViewModel : ObservableObject
 
             await pairViewModel.UpdateTickerDataAsync(data);
 
+            decimal priceChange = data.Last - data.Open;
+            decimal percentChange = data.Open != 0 ? (priceChange / data.Open) * 100 : 0;
+
             Dispatcher.UIThread.Post(() =>
             {
                 switch (data.TickerPair)
                 {
                     case PairCodes.btc_jpy:
                         LtpBtcJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
+                        LtpBtcJpyPercentChange = string.Format("{0:+0.00;-0.00;0.00}%", percentChange);
                         break;
                     case PairCodes.xrp_jpy:
                         LtpXrpJpy = string.Format(pairViewModel.LtpFormstString, data.Last);

@@ -24,7 +24,21 @@
 		<Grid x:Name="ContentGrid" Grid.Row="0" Margin="0">
 
 			<!-- NavigationView -->
-			<ui:FANavigationView Grid.Row="0" Margin="0" Name="NavigateViewControl" Loaded="NavigationView_Loaded" SelectionFollowsFocus="False" ItemInvoked="NavigationView_ItemInvoked" SelectionChanged="NavigationView_SelectionChanged" IsPaneToggleButtonVisible="True" IsSettingsVisible="True" PaneDisplayMode="Auto" OpenPaneLength="200" IsPaneOpen="{Binding IsNavigationViewMenuOpen, Mode=TwoWay}" ScrollViewer.AllowAutoHide="True" CompactModeThresholdWidth="740" ExpandedModeThresholdWidth="1000" ScrollViewer.VerticalScrollBarVisibility="Visible">
+			<ui:FANavigationView Grid.Row="0" Margin="0" 
+								 Name="NavigateViewControl" 
+								 Loaded="NavigationView_Loaded" 
+								 SelectionFollowsFocus="False" 
+								 ItemInvoked="NavigationView_ItemInvoked" 
+								 SelectionChanged="NavigationView_SelectionChanged" 
+								 IsPaneToggleButtonVisible="True" 
+								 IsSettingsVisible="True" 
+								 PaneDisplayMode="Auto" 
+								 OpenPaneLength="260" 
+								 IsPaneOpen="{Binding IsNavigationViewMenuOpen, Mode=TwoWay}" 
+								 ScrollViewer.AllowAutoHide="True" 
+								 CompactModeThresholdWidth="740" 
+								 ExpandedModeThresholdWidth="1000" 
+								 ScrollViewer.VerticalScrollBarVisibility="Visible">
 				<ui:FANavigationView.PaneHeader>
 					<Border WindowDecorationProperties.ElementRole="TitleBar" Margin="0,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="Transparent">
 						<Grid ColumnDefinitions="*">
@@ -43,7 +57,14 @@
 							<ui:FAPathIconSource Data="{StaticResource BtcIconData}" />
 						</ui:FANavigationViewItem.IconSource>
 						<ui:FANavigationViewItem.Content>
-							<TextBlock Text="{Binding LtpBtcJpy, Mode=OneWay}" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0"/>
+							<Grid>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="*"/>
+									<ColumnDefinition Width="86"/>
+								</Grid.ColumnDefinitions>
+								<TextBlock Grid.Column="0" Text="{Binding LtpBtcJpy, Mode=OneWay}" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0"/>
+								<TextBlock Grid.Column="1" Text="{Binding LtpBtcJpyPercentChange, Mode=OneWay}" FontWeight="Normal" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0"/>
+							</Grid>
 						</ui:FANavigationViewItem.Content>
 					</ui:FANavigationViewItem>
 					<ui:FANavigationViewItem Tag="xrp_jpy" Padding="3" IsVisible="{Binding IsOnXrpJpy, Mode=OneWay}">
