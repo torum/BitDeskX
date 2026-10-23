@@ -1167,31 +1167,17 @@ internal partial class MainViewModel : ObservableObject
             //Debug.WriteLine($"SetSelectedPairFromCodeAsync() called for {pairCode} at {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
         }
 
-        var pairVM = EnabledPairs.FirstOrDefault(x => x.PairCode == pairCode);
+        SelectedPair = EnabledPairs.FirstOrDefault(x => x.PairCode == pairCode);
 
-        if (pairVM is not null)
+        if (SelectedPair is not null)
         {
-            foreach (var hoge in Pairs)
-            {
-                if (hoge.PairCode == pairVM.PairCode)
-                {
-                    hoge.IsSelectedActive = true;
-                }
-                else
-                {
-                    hoge.IsSelectedActive = false;
-                }
-            }
-            
             if (_isLiveChartsOn)
-                await pairVM.InitializeAndLoadAsync();
+                await SelectedPair.InitializeAndLoadAsync();
         }
         else
         {
             Debug.WriteLine($"No PairViewModel found for {pairCode} at {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
         }
-
-        SelectedPair = pairVM;
     }
 
     public async Task SetSelectedAllPairsFromCodeAsync()

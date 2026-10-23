@@ -28,6 +28,7 @@ public partial class BtcJpyPage : UserControl
 
         this.Loaded += BtcJpyPage_Loaded;
         AddHandler(FAFrame.NavigatedToEvent, OnNavigatedTo);
+        AddHandler(FAFrame.NavigatedFromEvent, OnNavigatedFrom);
     }
 
     private void BtcJpyPage_Loaded(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -37,7 +38,18 @@ public partial class BtcJpyPage : UserControl
 
     private void OnNavigatedTo(object? sender, FANavigationEventArgs e)
     {
-        //Debug.WriteLine("BtcJpyPage navigated to. Parameter: " + (e.Parameter?.ToString() ?? "null"));
+        if (this.DataContext is PairViewModel pairViewModel)
+        {
+            pairViewModel.IsSelectedActive = true;
+        }
+    }
+
+    private void OnNavigatedFrom(object? sender, FANavigationEventArgs e)
+    {
+        if (this.DataContext is PairViewModel pairViewModel)
+        {
+            pairViewModel.IsSelectedActive = false;
+        }
     }
 
 }

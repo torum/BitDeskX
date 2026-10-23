@@ -26,6 +26,7 @@ public partial class EthJpyPage : UserControl
 
         this.Loaded += EthJpyPage_Loaded;
         AddHandler(FAFrame.NavigatedToEvent, OnNavigatedTo);
+        AddHandler(FAFrame.NavigatedFromEvent, OnNavigatedFrom);
     }
 
     private void EthJpyPage_Loaded(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -35,7 +36,18 @@ public partial class EthJpyPage : UserControl
 
     private void OnNavigatedTo(object? sender, FANavigationEventArgs e)
     {
-        //Debug.WriteLine("EthJpyPage navigated to. Parameter: " + (e.Parameter?.ToString() ?? "null"));
+        if (this.DataContext is PairViewModel pairViewModel)
+        {
+            pairViewModel.IsSelectedActive = true;
+        }
+    }
+
+    private void OnNavigatedFrom(object? sender, FANavigationEventArgs e)
+    {
+        if (this.DataContext is PairViewModel pairViewModel)
+        {
+            pairViewModel.IsSelectedActive = false;
+        }
     }
 
 }
