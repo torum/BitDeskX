@@ -62,7 +62,7 @@
 								<TextBlock Text="{Binding LtpEthJpy, Mode=OneWay}" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0"/>
 						</ui:FANavigationViewItem.Content>
 					</ui:FANavigationViewItem>
-					<ui:FANavigationViewItem Tag="multiple" Padding="3">
+					<ui:FANavigationViewItem Tag="gridview" Padding="3">
 						<ui:FANavigationViewItem.IconSource>
 							<ui:FAPathIconSource Data="{StaticResource TableIconData}" />
 						</ui:FANavigationViewItem.IconSource>

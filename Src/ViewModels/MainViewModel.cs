@@ -1,4 +1,5 @@
 ﻿using Avalonia.Controls;
+using Avalonia.Threading;
 using BitDesk.Models;
 using BitDesk.Services;
 using BitDesk.Services.Contracts;
@@ -52,6 +53,7 @@ internal partial class MainViewModel : ObservableObject
         IsOnBtcJpy = config.IsOnBtcJpy;
         IsOnEthJpy = config.IsOnEthJpy;
         IsOnXrpJpy = config.IsOnXrpJpy;
+        //OnPropertyChanged(nameof(EnabledPairs));
 
         IsEnabledChanged += OnIsEnabledChanged;
 
@@ -205,23 +207,20 @@ internal partial class MainViewModel : ObservableObject
         get => _isOnBtcJpy;
         set
         {
-            if (_isOnBtcJpy == value)
-            {
-                return;
-            }
-
             var hoge = Pairs.FirstOrDefault(x => x.PairCode == PairCodes.btc_jpy);
             if (hoge is not null)
             {
-                hoge.IsEnabled = value;
-                IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
+                if (hoge.IsEnabled != value)
+                {
+                    _isOnBtcJpy = value;
+                    OnPropertyChanged(nameof(IsOnBtcJpy));
+                    OnPropertyChanged(nameof(EnabledPairs));
+                    OnPropertyChanged(nameof(UniformGridColumns));
+
+                    hoge.IsEnabled = value;
+                    IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
+                }
             }
-
-            _isOnBtcJpy = value;
-
-            OnPropertyChanged(nameof(IsOnBtcJpy));
-            OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
-            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
         }
     }
 
@@ -231,23 +230,20 @@ internal partial class MainViewModel : ObservableObject
         get => _isOnXrpJpy;
         set
         {
-            if (_isOnXrpJpy == value)
-            {
-                return;
-            }
-
             var hoge = Pairs.FirstOrDefault(x => x.PairCode == PairCodes.xrp_jpy);
             if (hoge is not null)
             {
-                hoge.IsEnabled = value;
-                IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
+                if (hoge.IsEnabled != value)
+                {
+                    _isOnXrpJpy = value;
+                    OnPropertyChanged(nameof(IsOnXrpJpy));
+                    OnPropertyChanged(nameof(EnabledPairs));
+                    OnPropertyChanged(nameof(UniformGridColumns));
+
+                    hoge.IsEnabled = value;
+                    IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
+                }
             }
-
-            _isOnXrpJpy = value;
-
-            OnPropertyChanged(nameof(IsOnXrpJpy));
-            OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
-            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
         }
     }
 
@@ -257,548 +253,503 @@ internal partial class MainViewModel : ObservableObject
         get => _isOnEthJpy;
         set
         {
-            if (_isOnEthJpy == value)
-            {
-                return;
-            }
-
             var hoge = Pairs.FirstOrDefault(x => x.PairCode == PairCodes.eth_jpy);
             if (hoge is not null)
             {
-                hoge.IsEnabled = value;
-                IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
+                if (hoge.IsEnabled != value)
+                {
+                    _isOnEthJpy = value;
+                    OnPropertyChanged(nameof(IsOnEthJpy));
+                    OnPropertyChanged(nameof(EnabledPairs));
+                    OnPropertyChanged(nameof(UniformGridColumns));
+
+                    hoge.IsEnabled = value;
+                    IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
+                }
             }
-
-            _isOnEthJpy = value;
-
-            OnPropertyChanged(nameof(IsOnEthJpy));
-            OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
-            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
         }
     }
 
-    private bool _isOnLtcJpy = true;
+    private bool _isOnLtcJpy = false;
     public bool IsOnLtcJpy
     {
         get => _isOnLtcJpy;
         set
         {
-            if (_isOnLtcJpy == value)
-            {
-                return;
-            }
-
             var hoge = Pairs.FirstOrDefault(x => x.PairCode == PairCodes.ltc_jpy);
             if (hoge is not null)
             {
-                hoge.IsEnabled = value;
-                IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
-            }
+                if (hoge.IsEnabled != value)
+                {
+                    _isOnLtcJpy = value;
+                    OnPropertyChanged(nameof(IsOnLtcJpy));
+                    OnPropertyChanged(nameof(EnabledPairs));
+                    OnPropertyChanged(nameof(UniformGridColumns));
 
-            _isOnLtcJpy = value;
-            OnPropertyChanged(nameof(IsOnLtcJpy));
-            OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
-            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
+                    hoge.IsEnabled = value;
+                    IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
+                }
+            }
         }
     }
 
-    private bool _isOnBccJpy = true;
+    private bool _isOnBccJpy = false;
     public bool IsOnBccJpy
     {
         get => _isOnBccJpy;
         set
         {
-            if (_isOnBccJpy == value)
-            {
-                return;
-            }
-
             var hoge = Pairs.FirstOrDefault(x => x.PairCode == PairCodes.bcc_jpy);
             if (hoge is not null)
             {
-                hoge.IsEnabled = value;
-                IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
-            }
+                if (hoge.IsEnabled != value)
+                {
+                    _isOnBccJpy = value;
+                    OnPropertyChanged(nameof(IsOnBccJpy));
+                    OnPropertyChanged(nameof(EnabledPairs));
+                    OnPropertyChanged(nameof(UniformGridColumns));
 
-            _isOnBccJpy = value;
-            OnPropertyChanged(nameof(IsOnBccJpy));
-            OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
-            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
+                    hoge.IsEnabled = value;
+                    IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
+                }
+            }
         }
     }
 
-    private bool _isOnMonaJpy = true;
+    private bool _isOnMonaJpy = false;
     public bool IsOnMonaJpy
     {
         get => _isOnMonaJpy;
         set
         {
-            if (_isOnMonaJpy == value)
-            {
-                return;
-            }
-
             var hoge = Pairs.FirstOrDefault(x => x.PairCode == PairCodes.mona_jpy);
             if (hoge is not null)
             {
-                hoge.IsEnabled = value;
-                IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
-            }
+                if (hoge.IsEnabled != value)
+                {
+                    _isOnMonaJpy = value;
+                    OnPropertyChanged(nameof(IsOnMonaJpy));
+                    OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
+                    OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
 
-            _isOnMonaJpy = value;
-            OnPropertyChanged(nameof(IsOnMonaJpy));
-            OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
-            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
+                    hoge.IsEnabled = value;
+                    IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
+                }
+            }
         }
     }
 
-    private bool _isOnXlmJpy = true;
+    private bool _isOnXlmJpy = false;
     public bool IsOnXlmJpy
     {
         get => _isOnXlmJpy;
         set
         {
-            if (_isOnXlmJpy == value)
-            {
-                return;
-            }
-
             var hoge = Pairs.FirstOrDefault(x => x.PairCode == PairCodes.xlm_jpy);
             if (hoge is not null)
             {
-                hoge.IsEnabled = value;
-                IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
-            }
+                if (hoge.IsEnabled != value)
+                {
+                    _isOnXlmJpy = value;
+                    OnPropertyChanged(nameof(IsOnXlmJpy));
+                    OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
+                    OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
 
-            _isOnXlmJpy = value;
-            OnPropertyChanged(nameof(IsOnXlmJpy));
-            OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
-            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
+                    hoge.IsEnabled = value;
+                    IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
+                }
+            }
         }
     }
 
-    private bool _isOnQtumJpy = true;
+    private bool _isOnQtumJpy = false;
     public bool IsOnQtumJpy
     {
         get => _isOnQtumJpy;
         set
         {
-            if (_isOnQtumJpy == value)
-            {
-                return;
-            }
-
             var hoge = Pairs.FirstOrDefault(x => x.PairCode == PairCodes.qtum_jpy);
             if (hoge is not null)
             {
-                hoge.IsEnabled = value;
-                IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
-            }
+                if (hoge.IsEnabled != value)
+                {
+                    _isOnQtumJpy = value;
+                    OnPropertyChanged(nameof(IsOnQtumJpy));
+                    OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
+                    OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
 
-            _isOnQtumJpy = value;
-            OnPropertyChanged(nameof(IsOnQtumJpy));
-            OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
-            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
+                    hoge.IsEnabled = value;
+                    IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
+                }
+            }
         }
     }
 
-    private bool _isOnBatJpy = true;
+    private bool _isOnBatJpy = false;
     public bool IsOnBatJpy
     {
         get => _isOnBatJpy;
         set
         {
-            if (_isOnBatJpy == value)
-            {
-                return;
-            }
-
             var hoge = Pairs.FirstOrDefault(x => x.PairCode == PairCodes.bat_jpy);
             if (hoge is not null)
             {
-                hoge.IsEnabled = value;
-                IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
-            }
+                if (hoge.IsEnabled != value)
+                {
+                    _isOnBatJpy = value;
+                    OnPropertyChanged(nameof(IsOnBatJpy));
+                    OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
+                    OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
 
-            _isOnBatJpy = value;
-            OnPropertyChanged(nameof(IsOnBatJpy));
-            OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
-            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
+                    hoge.IsEnabled = value;
+                    IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
+                }
+            }
         }
     }
 
-    private bool _isOnOmgJpy = true;
+    private bool _isOnOmgJpy = false;
     public bool IsOnOmgJpy
     {
         get => _isOnOmgJpy;
         set
         {
-            if (_isOnOmgJpy == value)
-            {
-                return;
-            }
-
             var hoge = Pairs.FirstOrDefault(x => x.PairCode == PairCodes.omg_jpy);
             if (hoge is not null)
             {
-                hoge.IsEnabled = value;
-                IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
-            }
+                if (hoge.IsEnabled != value)
+                {
+                    _isOnOmgJpy = value;
+                    OnPropertyChanged(nameof(IsOnOmgJpy));
+                    OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
+                    OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
 
-            _isOnOmgJpy = value;
-            OnPropertyChanged(nameof(IsOnOmgJpy));
-            OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
-            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
+                    hoge.IsEnabled = value;
+                    IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
+                }
+            }
         }
     }
 
-    private bool _isOnXymJpy = true;
+    private bool _isOnXymJpy = false;
     public bool IsOnXymJpy
     {
         get => _isOnXymJpy;
         set
         {
-            if (_isOnXymJpy == value)
-            {
-                return;
-            }
-
             var hoge = Pairs.FirstOrDefault(x => x.PairCode == PairCodes.xym_jpy);
             if (hoge is not null)
             {
-                hoge.IsEnabled = value;
-                IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
-            }
+                if (hoge.IsEnabled != value)
+                {
+                    _isOnXymJpy = value;
+                    OnPropertyChanged(nameof(IsOnXymJpy));
+                    OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
+                    OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
 
-            _isOnXymJpy = value;
-            OnPropertyChanged(nameof(IsOnXymJpy));
-            OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
-            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
+                    hoge.IsEnabled = value;
+                    IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
+                }
+            }
         }
     }
 
-    private bool _isOnLinkJpy = true;
+    private bool _isOnLinkJpy = false;
     public bool IsOnLinkJpy
     {
         get => _isOnLinkJpy;
         set
         {
-            if (_isOnLinkJpy == value)
-            {
-                return;
-            }
-
             var hoge = Pairs.FirstOrDefault(x => x.PairCode == PairCodes.link_jpy);
             if (hoge is not null)
             {
-                hoge.IsEnabled = value;
-                IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
-            }
+                if (hoge.IsEnabled != value)
+                {
+                    _isOnLinkJpy = value;
+                    OnPropertyChanged(nameof(IsOnLinkJpy));
+                    OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
+                    OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
 
-            _isOnLinkJpy = value;
-            OnPropertyChanged(nameof(IsOnLinkJpy));
-            OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
-            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
+                    hoge.IsEnabled = value;
+                    IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
+                }
+            }
         }
     }
 
-    private bool _isOnMkrJpy = true;
+    private bool _isOnMkrJpy = false;
     public bool IsOnMkrJpy
     {
         get => _isOnMkrJpy;
         set
         {
-            if (_isOnMkrJpy == value)
-            {
-                return;
-            }
-
             var hoge = Pairs.FirstOrDefault(x => x.PairCode == PairCodes.mkr_jpy);
             if (hoge is not null)
             {
-                hoge.IsEnabled = value;
-                IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
-            }
+                if (hoge.IsEnabled != value)
+                {
+                    hoge.IsEnabled = value;
+                    IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
 
-            _isOnMkrJpy = value;
-            OnPropertyChanged(nameof(IsOnMkrJpy));
-            OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
-            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
+                    _isOnMkrJpy = value;
+                    OnPropertyChanged(nameof(IsOnMkrJpy));
+                    OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
+                    OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
+                }
+            }
         }
     }
 
-    private bool _isOnBobaJpy = true;
+    private bool _isOnBobaJpy = false;
     public bool IsOnBobaJpy
     {
         get => _isOnBobaJpy;
         set
         {
-            if (_isOnBobaJpy == value)
-            {
-                return;
-            }
-
             var hoge = Pairs.FirstOrDefault(x => x.PairCode == PairCodes.boba_jpy);
             if (hoge is not null)
             {
-                hoge.IsEnabled = value;
-                IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
-            }
+                if (hoge.IsEnabled != value)
+                {
+                    _isOnBobaJpy = value;
+                    OnPropertyChanged(nameof(IsOnBobaJpy));
+                    OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
+                    OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
 
-            _isOnBobaJpy = value;
-            OnPropertyChanged(nameof(IsOnBobaJpy));
-            OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
-            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
+                    hoge.IsEnabled = value;
+                    IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
+                }
+            }
         }
     }
 
-    private bool _isOnEnjJpy = true;
+    private bool _isOnEnjJpy = false;
     public bool IsOnEnjJpy
     {
         get => _isOnEnjJpy;
         set
         {
-            if (_isOnEnjJpy == value)
-            {
-                return;
-            }
-
             var hoge = Pairs.FirstOrDefault(x => x.PairCode == PairCodes.enj_jpy);
             if (hoge is not null)
             {
-                hoge.IsEnabled = value;
-                IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
-            }
+                if (hoge.IsEnabled != value)
+                {
+                    _isOnEnjJpy = value;
+                    OnPropertyChanged(nameof(IsOnEnjJpy));
+                    OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
+                    OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
 
-            _isOnEnjJpy = value;
-            OnPropertyChanged(nameof(IsOnEnjJpy));
-            OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
-            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
+                    hoge.IsEnabled = value;
+                    IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
+                }
+            }
         }
     }
 
-    private bool _isOnMaticJpy = true;
+    private bool _isOnMaticJpy = false;
     public bool IsOnMaticJpy
     {
         get => _isOnMaticJpy;
         set
         {
-            if (_isOnMaticJpy == value)
-            {
-                return;
-            }
-
             var hoge = Pairs.FirstOrDefault(x => x.PairCode == PairCodes.matic_jpy);
             if (hoge is not null)
             {
-                hoge.IsEnabled = value;
-                IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
-            }
+                if (hoge.IsEnabled != value)
+                {
+                    _isOnMaticJpy = value;
+                    OnPropertyChanged(nameof(IsOnMaticJpy));
+                    OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
+                    OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
 
-            _isOnMaticJpy = value;
-            OnPropertyChanged(nameof(IsOnMaticJpy));
-            OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
-            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
+                    hoge.IsEnabled = value;
+                    IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
+                }
+            }
         }
     }
 
-    private bool _isOnDotJpy = true;
+    private bool _isOnDotJpy = false;
     public bool IsOnDotJpy
     {
         get => _isOnDotJpy;
         set
         {
-            if (_isOnDotJpy == value)
-            {
-                return;
-            }
-
             var hoge = Pairs.FirstOrDefault(x => x.PairCode == PairCodes.dot_jpy);
             if (hoge is not null)
             {
-                hoge.IsEnabled = value;
-                IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
-            }
+                if (hoge.IsEnabled != value)
+                {
+                    _isOnDotJpy = value;
+                    OnPropertyChanged(nameof(IsOnDotJpy));
+                    OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
+                    OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
 
-            _isOnDotJpy = value;
-            OnPropertyChanged(nameof(IsOnDotJpy));
-            OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
-            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
+                    hoge.IsEnabled = value;
+                    IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
+                }
+            }
         }
     }
 
-    private bool _isOnDogeJpy = true;
+    private bool _isOnDogeJpy = false;
     public bool IsOnDogeJpy
     {
         get => _isOnDogeJpy;
         set
         {
-            if (_isOnDogeJpy == value)
-            {
-                return;
-            }
-
             var hoge = Pairs.FirstOrDefault(x => x.PairCode == PairCodes.doge_jpy);
             if (hoge is not null)
             {
-                hoge.IsEnabled = value;
-                IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
-            }
+                if (hoge.IsEnabled != value)
+                {
+                    _isOnDogeJpy = value;
+                    OnPropertyChanged(nameof(IsOnDogeJpy));
+                    OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
+                    OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
 
-            _isOnDogeJpy = value;
-            OnPropertyChanged(nameof(IsOnDogeJpy));
-            OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
-            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
+                    hoge.IsEnabled = value;
+                    IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
+                }
+            }
         }
     }
 
-    private bool _isOnAstrJpy = true;
+    private bool _isOnAstrJpy = false;
     public bool IsOnAstrJpy
     {
         get => _isOnAstrJpy;
         set
         {
-            if (_isOnAstrJpy == value)
-            {
-                return;
-            }
-
             var hoge = Pairs.FirstOrDefault(x => x.PairCode == PairCodes.astr_jpy);
             if (hoge is not null)
             {
-                hoge.IsEnabled = value;
-                IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
-            }
+                if (hoge.IsEnabled != value)
+                {
+                    _isOnAstrJpy = value;
+                    OnPropertyChanged(nameof(IsOnAstrJpy));
+                    OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
+                    OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
 
-            _isOnAstrJpy = value;
-            OnPropertyChanged(nameof(IsOnAstrJpy));
-            OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
-            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
+                    hoge.IsEnabled = value;
+                    IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
+                }
+            }
         }
     }
 
-    private bool _isOnAdaJpy = true;
+    private bool _isOnAdaJpy = false;
     public bool IsOnAdaJpy
     {
         get => _isOnAdaJpy;
         set
         {
-            if (_isOnAdaJpy == value)
-            {
-                return;
-            }
-
             var hoge = Pairs.FirstOrDefault(x => x.PairCode == PairCodes.ada_jpy);
             if (hoge is not null)
             {
-                hoge.IsEnabled = value;
-                IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
-            }
+                if (hoge.IsEnabled != value)
+                {
+                    _isOnAdaJpy = value;
+                    OnPropertyChanged(nameof(IsOnAdaJpy));
+                    OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
+                    OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
 
-            _isOnAdaJpy = value;
-            OnPropertyChanged(nameof(IsOnAdaJpy));
-            OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
-            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
+                    hoge.IsEnabled = value;
+                    IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
+                }
+            }
         }
     }
 
-    private bool _isOnAvaxJpy = true;
+    private bool _isOnAvaxJpy = false;
     public bool IsOnAvaxJpy
     {
         get => _isOnAvaxJpy;
         set
         {
-            if (_isOnAvaxJpy == value)
-            {
-                return;
-            }
-
             var hoge = Pairs.FirstOrDefault(x => x.PairCode == PairCodes.avax_jpy);
             if (hoge is not null)
             {
-                hoge.IsEnabled = value;
-                IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
-            }
+                if (hoge.IsEnabled != value)
+                {
+                    _isOnAvaxJpy = value;
+                    OnPropertyChanged(nameof(IsOnAvaxJpy));
+                    OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
+                    OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
 
-            _isOnAvaxJpy = value;
-            OnPropertyChanged(nameof(IsOnAvaxJpy));
-            OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
-            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
+                    hoge.IsEnabled = value;
+                    IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
+                }
+            }
         }
     }
 
-    private bool _isOnAxsJpy = true;
+    private bool _isOnAxsJpy = false;
     public bool IsOnAxsJpy
     {
         get => _isOnAxsJpy;
         set
         {
-            if (_isOnAxsJpy == value)
-            {
-                return;
-            }
-
             var hoge = Pairs.FirstOrDefault(x => x.PairCode == PairCodes.axs_jpy);
             if (hoge is not null)
             {
-                hoge.IsEnabled = value;
-                IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
-            }
+                if (hoge.IsEnabled != value)
+                {
+                    _isOnAxsJpy = value;
+                    OnPropertyChanged(nameof(IsOnAxsJpy));
+                    OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
+                    OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
 
-            _isOnAxsJpy = value;
-            OnPropertyChanged(nameof(IsOnAxsJpy));
-            OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
-            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
+                    hoge.IsEnabled = value;
+                    IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
+                }
+            }
         }
     }
 
-    private bool _isOnFlrJpy = true;
+    private bool _isOnFlrJpy = false;
     public bool IsOnFlrJpy
     {
         get => _isOnFlrJpy;
         set
         {
-            if (_isOnFlrJpy == value)
-            {
-                return;
-            }
-
             var hoge = Pairs.FirstOrDefault(x => x.PairCode == PairCodes.flr_jpy);
             if (hoge is not null)
             {
-                hoge.IsEnabled = value;
-                IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
-            }
+                if (hoge.IsEnabled != value)
+                {
+                    _isOnFlrJpy = value;
+                    OnPropertyChanged(nameof(IsOnFlrJpy));
+                    OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
+                    OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
 
-            _isOnFlrJpy = value;
-            OnPropertyChanged(nameof(IsOnFlrJpy));
-            OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
-            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
+                    hoge.IsEnabled = value;
+                    IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
+                }
+            }
         }
     }
 
-    private bool _isOnSandJpy = true;
+    private bool _isOnSandJpy = false;
     public bool IsOnSandJpy
     {
         get => _isOnSandJpy;
         set
         {
-            if (_isOnSandJpy == value)
-            {
-                return;
-            }
-
             var hoge = Pairs.FirstOrDefault(x => x.PairCode == PairCodes.sand_jpy);
             if (hoge is not null)
             {
-                hoge.IsEnabled = value;
-                IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
-            }
+                if (hoge.IsEnabled != value)
+                {
+                    _isOnSandJpy = value;
+                    OnPropertyChanged(nameof(IsOnSandJpy));
+                    OnPropertyChanged(nameof(EnabledPairs));
+                    OnPropertyChanged(nameof(UniformGridColumns));
 
-            _isOnSandJpy = value;
-            OnPropertyChanged(nameof(IsOnSandJpy));
-            OnPropertyChanged(nameof(EnabledPairs)); // Notify that EnabledPairs has changed
-            OnPropertyChanged(nameof(UniformGridColumns)); // Notify that UniformGridColumns has changed
+                    hoge.IsEnabled = value;
+                    IsEnabledChanged?.Invoke(this, new IsEnabledState { IsEnabled = value, PairCode = hoge.PairCode });
+                }
+            }
         }
     }
 
@@ -1216,12 +1167,7 @@ internal partial class MainViewModel : ObservableObject
             //Debug.WriteLine($"SetSelectedPairFromCodeAsync() called for {pairCode} at {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
         }
 
-        var pairVM = Pairs.FirstOrDefault(x => x.PairCode == pairCode);
-
-        if (pairVM?.IsEnabled == false)
-        {
-            return;
-        }
+        var pairVM = EnabledPairs.FirstOrDefault(x => x.PairCode == pairCode);
 
         if (pairVM is not null)
         {
@@ -1317,85 +1263,87 @@ internal partial class MainViewModel : ObservableObject
 
             await pairViewModel.UpdateTickerDataAsync(data);
 
-
-
-            switch (data.TickerPair)
+            await Dispatcher.UIThread.InvokeAsync(() =>
             {
-                case PairCodes.btc_jpy:
-                    LtpBtcJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
-                    break;
-                case PairCodes.xrp_jpy:
-                    LtpXrpJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
-                    break;
-                case PairCodes.eth_jpy:
-                    LtpEthJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
-                    break;
-                case PairCodes.ltc_jpy:
-                    LtpLtcJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
-                    break;
-                case PairCodes.mona_jpy:
-                    LtpMonaJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
-                    break;
-                case PairCodes.bcc_jpy:
-                    LtpBccJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
-                    break;
-                case PairCodes.xlm_jpy:
-                    LtpXlmJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
-                    break;
-                case PairCodes.qtum_jpy:
-                    LtpQtumJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
-                    break;
-                case PairCodes.bat_jpy:
-                    LtpBatJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
-                    break;
-                case PairCodes.omg_jpy:
-                    LtpOmgJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
-                    break;
-                case PairCodes.xym_jpy:
-                    LtpXymJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
-                    break;
-                case PairCodes.link_jpy:
-                    LtpLinkJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
-                    break;
-                case PairCodes.mkr_jpy:
-                    LtpMkrJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
-                    break;
-                case PairCodes.boba_jpy:
-                    LtpBobaJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
-                    break;
-                case PairCodes.enj_jpy:
-                    LtpEnjJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
-                    break;
-                case PairCodes.matic_jpy:
-                    LtpMaticJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
-                    break;
-                case PairCodes.dot_jpy:
-                    LtpDotJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
-                    break;
-                case PairCodes.doge_jpy:
-                    LtpDogeJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
-                    break;
-                case PairCodes.astr_jpy:
-                    LtpAstrJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
-                    break;
-                case PairCodes.ada_jpy:
-                    LtpAdaJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
-                    break;
-                case PairCodes.avax_jpy:
-                    LtpAvaxJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
-                    break;
-                case PairCodes.axs_jpy:
-                    LtpAxsJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
-                    break;
-                case PairCodes.flr_jpy:
-                    LtpFlrJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
-                    break;
-                case PairCodes.sand_jpy:
-                    LtpSandJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
-                    break;
-                default:
-                    throw new NotImplementedException();
-            }
+                switch (data.TickerPair)
+                {
+                    case PairCodes.btc_jpy:
+                        LtpBtcJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
+                        break;
+                    case PairCodes.xrp_jpy:
+                        LtpXrpJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
+                        break;
+                    case PairCodes.eth_jpy:
+                        LtpEthJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
+                        break;
+                    case PairCodes.ltc_jpy:
+                        LtpLtcJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
+                        break;
+                    case PairCodes.mona_jpy:
+                        LtpMonaJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
+                        break;
+                    case PairCodes.bcc_jpy:
+                        LtpBccJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
+                        break;
+                    case PairCodes.xlm_jpy:
+                        LtpXlmJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
+                        break;
+                    case PairCodes.qtum_jpy:
+                        LtpQtumJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
+                        break;
+                    case PairCodes.bat_jpy:
+                        LtpBatJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
+                        break;
+                    case PairCodes.omg_jpy:
+                        LtpOmgJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
+                        break;
+                    case PairCodes.xym_jpy:
+                        LtpXymJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
+                        break;
+                    case PairCodes.link_jpy:
+                        LtpLinkJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
+                        break;
+                    case PairCodes.mkr_jpy:
+                        LtpMkrJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
+                        break;
+                    case PairCodes.boba_jpy:
+                        LtpBobaJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
+                        break;
+                    case PairCodes.enj_jpy:
+                        LtpEnjJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
+                        break;
+                    case PairCodes.matic_jpy:
+                        LtpMaticJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
+                        break;
+                    case PairCodes.dot_jpy:
+                        LtpDotJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
+                        break;
+                    case PairCodes.doge_jpy:
+                        LtpDogeJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
+                        break;
+                    case PairCodes.astr_jpy:
+                        LtpAstrJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
+                        break;
+                    case PairCodes.ada_jpy:
+                        LtpAdaJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
+                        break;
+                    case PairCodes.avax_jpy:
+                        LtpAvaxJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
+                        break;
+                    case PairCodes.axs_jpy:
+                        LtpAxsJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
+                        break;
+                    case PairCodes.flr_jpy:
+                        LtpFlrJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
+                        break;
+                    case PairCodes.sand_jpy:
+                        LtpSandJpy = string.Format(pairViewModel.LtpFormstString, data.Last);
+                        break;
+                    default:
+                        throw new NotImplementedException();
+                }
+            });
+
         }
         else
         {

@@ -4,9 +4,9 @@ using Avalonia.Markup.Xaml;
 
 namespace BitDesk.Views;
 
-public partial class MultipleView : UserControl
+public partial class GridViewPage : UserControl
 {
-    public MultipleView()
+    public GridViewPage()
     {
         InitializeComponent();
     }

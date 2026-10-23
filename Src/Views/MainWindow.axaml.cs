@@ -25,7 +25,7 @@ public partial class MainWindow : Window
         { "BitDesk.Views.ChartPages.BtcJpyPage", typeof(Views.ChartPages.BtcJpyPage) },
         { "BitDesk.Views.ChartPages.XrpJpyPage", typeof(Views.ChartPages.XrpJpyPage) },
         { "BitDesk.Views.ChartPages.EthJpyPage", typeof(Views.ChartPages.EthJpyPage) },
-        { "BitDesk.Views.MultipleView", typeof(Views.MultipleView) },
+        { "BitDesk.Views.GridViewPage", typeof(Views.GridViewPage) },
         { "BitDesk.Views.SettingsPage", typeof(Views.SettingsPage) },
     };
 
@@ -34,7 +34,7 @@ public partial class MainWindow : Window
         (PairCodes.btc_jpy.ToString(), typeof(BtcJpyPage)),
         (PairCodes.xrp_jpy.ToString(), typeof(XrpJpyPage)),
         (PairCodes.eth_jpy.ToString(), typeof(EthJpyPage)),
-        ("multiple", typeof(MultipleView)),
+        ("gridview", typeof(GridViewPage)),
         ("settings", typeof(SettingsPage)),
         /*
         (PairCodes.ltc_jpy.ToString(), typeof(LtcJpyPage)),
@@ -66,7 +66,7 @@ public partial class MainWindow : Window
     private int _winRestoreTop = 100;
     private int _winRestoreLeft = 100;
 
-    private readonly IBitbankStreamService _tickerService;
+    private readonly IBitbankStreamService _bitbankStreamService;
     private readonly IConfigurationService _configurationService;
     private readonly INavigationService _navigationService;
     private bool _shutdownStarted;
@@ -77,7 +77,7 @@ public partial class MainWindow : Window
     {
         _mainViewModel = App.GetService<MainViewModel>();
         this.DataContext = _mainViewModel;
-        _tickerService = App.GetService<IBitbankStreamService>();
+        _bitbankStreamService = App.GetService<IBitbankStreamService>();
         _configurationService = App.GetService<IConfigurationService>();
         _navigationService = App.GetService<INavigationService>();
 
@@ -183,9 +183,9 @@ public partial class MainWindow : Window
         if (pairViewModel is not null)
         {
             var item = _pages.FirstOrDefault(p => p.Tag.Equals(pairViewModel.PairCode.ToString()));
-            var _page = item.Page;
+            var page = item.Page;
 
-            if (_navigationService.NavigateTo(_page.FullName, null))
+            if (_navigationService.NavigateTo(page.FullName, null))
             {
                 NavigateViewControl.SelectedItem = NavigateViewControl.MenuItems.OfType<FANavigationViewItem>().Where(x => x.Tag?.ToString()?.Equals(pairViewModel.PairCode.ToString()) == true).FirstOrDefault();//.First();
 
@@ -251,7 +251,7 @@ public partial class MainWindow : Window
         this.Hide();
 
         // Wait for the ticker service to stop gracefully
-        await _tickerService.StopAsync();
+        await _bitbankStreamService.StopAsync();
 
         // After the service has stopped, allow the window to close
         _allowClose = true;
@@ -366,7 +366,7 @@ public partial class MainWindow : Window
         {
             //Debug.WriteLine($"NavigationView_ItemInvoked: Navigation to pageInfo successful.");
 
-            if (invokedItem.Tag?.ToString() == "multiple")
+            if (invokedItem.Tag?.ToString() == "gridview")
             {
                 // Handle multiple view logic here
 

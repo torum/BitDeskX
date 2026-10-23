@@ -31,9 +31,9 @@ public partial class PairViewModel : ObservableObject
 
     public delegate void DepthCenterEventHandler();
     //public event DepthCenterEventHandler? DepthScrollCenter;
-
+    private bool _isChartLoading;
     private readonly List<DateTime> _chartTimes = [];
-    private bool _chartRefreshRunning;
+    private bool _isChartRefreshRunning;
     private readonly DispatcherTimer _dispatcherTimerChart = new();
 
     private readonly IBitbankHttpSearvice _bitbankHttpSearvice;
@@ -1446,42 +1446,59 @@ public partial class PairViewModel : ObservableObject
     // Called from MainViewModel.
     public async Task InitializeAndLoadAsync()
     {
-        Debug.WriteLine($"InitializeAndLoadAsync() called for {PairCode} at {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+        //Debug.WriteLine($"InitializeAndLoadAsync() called for {PairCode} at {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
 
         if (IsChartInitAndLoaded)
         {
+            Debug.WriteLine($"InitializeAndLoadAsync() skipped for {PairCode} because chart is already initialized and loaded.");
+            /*
             if (lastChartLoadedDateTime.Add(chartUpdateInterval) < DateTime.Now)
             {
                 await LoadChartAsync(SelectedCandleType);
                 _dispatcherTimerChart.Stop();
                 _dispatcherTimerChart.Start();
             }
+            */
         }
         else
         {
-            if (Sections[0] is RectangularSection secn)
+            _isChartLoading = true;
+
+            Debug.WriteLine($"InitializeAndLoadAsync() started for {PairCode}");
+
+            try
             {
-                secn.Yi = (double)_ltp;
-                secn.Yj = (double)_ltp;
+                if (Sections[0] is RectangularSection secn)
+                {
+                    secn.Yi = (double)_ltp;
+                    secn.Yj = (double)_ltp;
+                }
+
+                // Little hack to init. This is required after upgrading Livechart2 to 2.0 rc.
+                // clear chart data.
+                Series[0].Values = new ObservableCollection<DateTimePoint>{new(DateTime.Now, 1)};
+                Series[1].Values = new ObservableCollection<FinancialPoint>{new(DateTime.Now, 100, 0, 0, 0)};
+
+                await Task.Delay(100);
+
+                await LoadChartAsync(SelectedCandleType);
+
+                //Sections[0].Yi = (double)_ltp;
+                //Sections[0].Yj = (double)_ltp;
+
+                Debug.WriteLine($"InitializeAndLoadAsync() completed for {PairCode}");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"InitializeAndLoadAsync() exception for {PairCode}: {ex.Message}");
+            }
+            finally
+            {
+                _isChartLoading = false;
             }
 
-            // Little hack to init. This is required after upgrading Livechart2 to 2.0 rc.
-            // clear chart data.
-            Series[0].Values = new ObservableCollection<DateTimePoint>
-            {
-                new(DateTime.Now, 1)
-            };
-            Series[1].Values = new ObservableCollection<FinancialPoint>
-            {
-                new(DateTime.Now, 100, 0, 0, 0)
-            };
 
-            await Task.Delay(100);
 
-            await LoadChartAsync(SelectedCandleType);
-
-            //Sections[0].Yi = (double)_ltp;
-            //Sections[0].Yj = (double)_ltp;
         }
 
         /*
@@ -1550,22 +1567,19 @@ public partial class PairViewModel : ObservableObject
             return;
         }
 
-        /*
-        Dispatcher.UIThread.Post(() =>
+        await Dispatcher.UIThread.InvokeAsync(() =>
         {
+            Ltp = data.Last;
+
+            if (Sections[0] is RectangularSection section)
+            {
+                section.Yi = (double)data.Last;
+                section.Yj = (double)data.Last;
+            }
+
+            DateTime timeStamp = DateTimeOffset.FromUnixTimeMilliseconds(data.Timestamp).LocalDateTime;
+            UpdateCurrentCandle(timeStamp, data);
         });
-        */
-
-        Ltp = data.Last;
-
-        if (Sections[0] is RectangularSection section)
-        {
-            section.Yi = (double)data.Last;
-            section.Yj = (double)data.Last;
-        }
-
-        DateTime timeStamp = DateTimeOffset.FromUnixTimeMilliseconds(data.Timestamp).LocalDateTime;
-        UpdateCurrentCandle(timeStamp, data);
     }
 
     private void UpdateCurrentCandle(DateTime tickTime, BitbankTickerData data)
@@ -1581,31 +1595,35 @@ public partial class PairViewModel : ObservableObject
 
             if (candle.Date != candleStart)
             {
-                Debug.WriteLine($"UpdateCurrentCandle() skipping candle for {PairCode} at {candle.Date:yyyy-MM-dd HH:mm:ss} because it does not match the current candle start time {candleStart:yyyy-MM-dd HH:mm:ss}");
+                //Debug.WriteLine($"UpdateCurrentCandle() skipping candle for {PairCode} at {candle.Date:yyyy-MM-dd HH:mm:ss} because it does not match the current candle start time {candleStart:yyyy-MM-dd HH:mm:ss}");
                 continue;
             }
 
             //Debug.WriteLine($"UpdateCurrentCandle() found existing candle for {PairCode} at {candleStart:yyyy-MM-dd HH:mm:ss} with price {lastPrice:N0}");
 
             var price = (double)data.Last;
+            var high = Math.Max(candle.High, price);
+            var low = Math.Min(candle.Low, price);
+            var open = candle.Open;
 
             // Update the chart only if it has changed for performance reasons like high CPU usage.
-            if (candle.Close == price)
+            if ((candle.Close == price) && (candle.High == high) && (candle.Low == low) && (candle.Open == open))
             {
-                Debug.WriteLine($"UpdateCurrentCandle() skipping candle update for {PairCode} at {candleStart:yyyy-MM-dd HH:mm:ss} because the close price is already {data.Last:N0}");
+                //Debug.WriteLine($"UpdateCurrentCandle() skipping candle update for {PairCode} at {candleStart:yyyy-MM-dd HH:mm:ss} because the close price is already {data.Last:N0}");
                 return;
             }
 
             Debug.WriteLine($"UpdateCurrentCandle() updating candle for {PairCode} at {candleStart:yyyy-MM-dd HH:mm:ss} with price {data.Last:N0}");
+            //candles[i] = new FinancialPoint(candleStart, high, open, price, low);
             candle.Close = price;
-            candle.High = Math.Max(candle.High, price);
-            candle.Low = Math.Min(candle.Low, price);
+            candle.High = high;
+            candle.Low = low;
+            //candle.Open = open;//candle.Open == 0 ? price : candle.Open;
 
             return;
         }
-
         
-        Debug.WriteLine($"If we reach here, no existing candle matched; create a new one. {PairCode} at {candleStart:yyyy-MM-dd HH:mm:ss} with price {data.Last:N0}");
+        Debug.WriteLine($"If we reach here, no existing candle matched; creating a new one. {PairCode} at {candleStart:yyyy-MM-dd HH:mm:ss} with price {data.Last:N0}");
 
         //DateTime timestamp = DateTimeOffset.FromUnixTimeMilliseconds(data.Timestamp).LocalDateTime;
 
@@ -1614,17 +1632,31 @@ public partial class PairViewModel : ObservableObject
             // TODO: we need to load chart independently after all.
             // data.Vol is 24-hour rolling volume. So, we can't use it here.
             //volumes.Add(new DateTimePoint(candleStart, (double)data.Vol));
+            // For now, just add a placeholder value of 0 for the volume.
+            volumes.Add(new DateTimePoint(candleStart, 0));
         }
         if (Series[1].Values is ObservableCollection<FinancialPoint>)
         {
             candles.Add(new FinancialPoint(candleStart, (double)data.Last, (double)data.Last, (double)data.Last, (double)data.Last));
+            
         }
 
     }
 
     private static DateTime GetCandleStart(DateTime time, CandleTypes candleType)
     {
-        var interval = candleType switch { CandleTypes.OneMin => TimeSpan.FromMinutes(1), CandleTypes.FiveMin => TimeSpan.FromMinutes(5), CandleTypes.FifteenMin => TimeSpan.FromMinutes(15), CandleTypes.ThirtyMin => TimeSpan.FromMinutes(30), CandleTypes.OneHour => TimeSpan.FromHours(1), CandleTypes.FourHour => TimeSpan.FromHours(4), CandleTypes.EightHour => TimeSpan.FromHours(8), CandleTypes.TwelveHour => TimeSpan.FromHours(12), _ => TimeSpan.Zero };
+        var interval = candleType switch 
+        { 
+            CandleTypes.OneMin => TimeSpan.FromMinutes(1), 
+            CandleTypes.FiveMin => TimeSpan.FromMinutes(5), 
+            CandleTypes.FifteenMin => TimeSpan.FromMinutes(15), 
+            CandleTypes.ThirtyMin => TimeSpan.FromMinutes(30), 
+            CandleTypes.OneHour => TimeSpan.FromHours(1), 
+            CandleTypes.FourHour => TimeSpan.FromHours(4), 
+            CandleTypes.EightHour => TimeSpan.FromHours(8), 
+            CandleTypes.TwelveHour => TimeSpan.FromHours(12), 
+            _ => TimeSpan.Zero 
+        };
 
         if (interval != TimeSpan.Zero)
         {
@@ -1835,7 +1867,7 @@ public partial class PairViewModel : ObservableObject
 
             ohlcs.Add(new FinancialPoint(hoge.TimeStamp, (double)hoge.High, (double)hoge.Open, (double)hoge.Close, (double)hoge.Low));
 
-            Debug.WriteLine($"GetCandlestick: {hoge.TimeStamp:yyyy-MM-dd HH:mm:ss} Open: {hoge.Open}, High: {hoge.High}, Low: {hoge.Low}, Close: {hoge.Close}, Volume: {hoge.Volume}");
+            //Debug.WriteLine($"GetCandlestick: {hoge.TimeStamp:yyyy-MM-dd HH:mm:ss} Open: {hoge.Open}, High: {hoge.High}, Low: {hoge.Low}, Close: {hoge.Close}, Volume: {hoge.Volume}");
         }
 
         Series[0].Values = vols;
@@ -1856,6 +1888,9 @@ public partial class PairViewModel : ObservableObject
         var dtToday = DateTime.Now.ToUniversalTime();
 
         // データは、UTCで朝9:00 から翌8:59分まで。8:59分までしか取れないので、 9:00過ぎていたら 最新のデータとるには日付を１日追加する
+        TimeSpan currentTime = DateTime.Now.TimeOfDay;
+        TimeSpan targetTime = new TimeSpan(9, 0, 0); // 09:00:00
+        var isPastNineAm = currentTime >= targetTime;
 
         var daysOrYearsCountToGetData = 0;
 
@@ -1863,23 +1898,58 @@ public partial class PairViewModel : ObservableObject
 
         if (ct == CandleTypes.OneMin)
         {
-            daysOrYearsCountToGetData = 1;
+            if (isPastNineAm)
+            {
+                daysOrYearsCountToGetData = 2;
+            }
+            else
+            {
+                daysOrYearsCountToGetData = 1;
+            }
         }
         else if (ct == CandleTypes.FiveMin)
         {
-            daysOrYearsCountToGetData = 1;
+            if (isPastNineAm)
+            {
+                daysOrYearsCountToGetData = 2;
+            }
+            else
+            {
+                daysOrYearsCountToGetData = 1;
+            }
         }
         else if (ct == CandleTypes.FifteenMin)
         {
-            daysOrYearsCountToGetData = 2;
+            if (isPastNineAm)
+            {
+                daysOrYearsCountToGetData = 4;
+            }
+            else
+            {
+                daysOrYearsCountToGetData = 3;
+            }
         }
         else if (ct == CandleTypes.ThirtyMin)
         {
-            daysOrYearsCountToGetData = 3;
+            if (isPastNineAm)
+            {
+                daysOrYearsCountToGetData = 4;
+            }
+            else
+            {
+                daysOrYearsCountToGetData = 3;
+            }
         }
         else if (ct == CandleTypes.OneHour)
         {
-            daysOrYearsCountToGetData = 6;
+            if (isPastNineAm)
+            {
+                daysOrYearsCountToGetData = 6;
+            }
+            else
+            {
+                daysOrYearsCountToGetData = 5;
+            }
         }
         else if (ct == CandleTypes.FourHour)
         {
@@ -2076,7 +2146,7 @@ public partial class PairViewModel : ObservableObject
 
     private async Task UpdateChartAsync()
     {
-        if (!IsChartInitAndLoaded || !IsEnabled || _chartRefreshRunning) 
+        if (!IsChartInitAndLoaded || !IsEnabled || _isChartRefreshRunning) 
         {
             // || !IsSelectedActive 
             // Let's update the chart even if it's not selected,
@@ -2085,7 +2155,7 @@ public partial class PairViewModel : ObservableObject
             return;
         }
 
-        _chartRefreshRunning = true;
+        _isChartRefreshRunning = true;
 
         try
         {
@@ -2126,24 +2196,27 @@ public partial class PairViewModel : ObservableObject
                         (prices[index].Open != price.Open))
                     {
                         // Same timestamp: update the in-progress candle.
+
+                        //prices[index] = price;
+                        //volumes[index] = volume;
                         /*
-                        // not good for performance. It will cause the chart to redraw.
-                        prices[index] = price;
-                        volumes[index] = volume;
-                        */
                         prices[index].Low = price.Low;
                         prices[index].High = price.High;
-                        prices[index].Open = price.Open;
+                        prices[index].Open = price.Open ;
                         prices[index].Close = price.Close;
+                        prices[index].Date = candle.TimeStamp;
+                        */
 
-                        //Debug.WriteLine($"Updated chart candle for {PairCode} at {candle.TimeStamp:yyyy-MM-dd HH:mm:ss}");
-                        Debug.WriteLine($"UpdateChartAsync Updated Candlestick for {PairCode}: {candle.TimeStamp:yyyy-MM-dd HH:mm:ss} Open: {candle.Open}, High: {candle.High}, Low: {candle.Low}, Close: {candle.Close}, Volume: {candle.Volume}");
+                        // Let's just not update it because it does not cleanly update the value. It leaves visual glitch.
+
+                        //Debug.WriteLine($"UpdateChartAsync Updated Candlestick for {PairCode}: {candle.TimeStamp:yyyy-MM-dd HH:mm:ss} Open: {candle.Open}, High: {candle.High}, Low: {candle.Low}, Close: {candle.Close}, Volume: {candle.Volume}");
                     }
 
                     if (volumes[index].Value != volume.Value)
                     {
                         volumes[index].Value = volume.Value;
-                        volumes[index].DateTime = volume.DateTime;
+                        //volumes[index].DateTime = volume.DateTime;
+                        //volumes[index] = volume;
                     }
                 }
                 else
@@ -2162,7 +2235,7 @@ public partial class PairViewModel : ObservableObject
         }
         finally
         {
-            _chartRefreshRunning = false;
+            _isChartRefreshRunning = false;
         }
     }
 
