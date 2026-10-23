@@ -320,6 +320,7 @@ public partial class MainWindow : Window
             Debug.WriteLine("NavigationView_ItemInvoked: DataContext is not MainViewModel.");
             return;
         }
+
         if (e.IsSettingsInvoked == true)
         {
             var settingsItem = nv.MenuItems.OfType<FANavigationViewItem>().Where(x => x.Tag?.ToString()?.Equals("settings") == true).FirstOrDefault();//.First();
@@ -350,6 +351,18 @@ public partial class MainWindow : Window
 
         //Debug.WriteLine($"NavigationView_ItemInvoked: InvokedItem.Tag = {invokedItem.Tag?.ToString()}");
 
+        var pageInfo = _pages.FirstOrDefault(p => p.Tag == invokedItem.Tag?.ToString());
+
+        if (invokedItem.Tag?.ToString() == "gridview")
+        {
+            // Handle multiple view logic here
+            if (_navigationService.NavigateTo(pageInfo.Page?.FullName, null))
+            {
+                await _mainViewModel.SetSelectedAllPairsFromCodeAsync();
+            }
+        }
+
+        /*
         var selectedItem = nv.MenuItems.OfType<FANavigationViewItem>().Where(x => x.Tag?.ToString()?.Equals(invokedItem.Tag?.ToString()) == true).FirstOrDefault();//.First();
 
         if (selectedItem is null)
@@ -357,30 +370,19 @@ public partial class MainWindow : Window
             Debug.WriteLine("NavigationView_ItemInvoked: SelectedItem is null.");
             return;
         }
-
-        var pageInfo = _pages.FirstOrDefault(p => p.Tag == invokedItem.Tag?.ToString());
+        */
 
         if (_navigationService.NavigateTo(pageInfo.Page?.FullName, null))
         {
             //Debug.WriteLine($"NavigationView_ItemInvoked: Navigation to pageInfo successful.");
-
-            if (invokedItem.Tag?.ToString() == "gridview")
+            var _activePair = Enum.TryParse<PairCodes>(invokedItem.Tag?.ToString(), out var parsedPair);
+            if (_activePair)
             {
-                // Handle multiple view logic here
-
-                await _mainViewModel.SetSelectedAllPairsFromCodeAsync();
+                await _mainViewModel.SetSelectedPairFromCodeAsync(parsedPair);
             }
             else
             {
-                var _activePair = Enum.TryParse<PairCodes>(invokedItem.Tag?.ToString(), out var parsedPair);
-                if (_activePair)
-                {
-                    await _mainViewModel.SetSelectedPairFromCodeAsync(parsedPair);
-                }
-                else
-                {
-                    Debug.WriteLine($"NavigationView_ItemInvoked: Failed to parse PairCodes from tag '{invokedItem.Tag?.ToString()}'.");
-                }
+                Debug.WriteLine($"NavigationView_ItemInvoked: Failed to parse PairCodes from tag '{invokedItem.Tag?.ToString()}'.");
             }
         }
         else
