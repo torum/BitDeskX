@@ -72,7 +72,14 @@
 							<ui:FAPathIconSource Data="{StaticResource XrpIconData}" />
 						</ui:FANavigationViewItem.IconSource>
 						<ui:FANavigationViewItem.Content>
-								<TextBlock Text="{Binding LtpXrpJpy, Mode=OneWay}" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0"/>
+							<Grid>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="*"/>
+									<ColumnDefinition Width="86"/>
+								</Grid.ColumnDefinitions>
+								<TextBlock Grid.Column="0" Text="{Binding LtpXrpJpy, Mode=OneWay}" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0"/>
+								<TextBlock Grid.Column="1" Text="{Binding LtpXrpJpyPercentChange, Mode=OneWay}" FontWeight="Normal" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0"/>
+							</Grid>
 						</ui:FANavigationViewItem.Content>
 					</ui:FANavigationViewItem>
 					<ui:FANavigationViewItem Tag="eth_jpy" Padding="3" IsVisible="{Binding IsOnEthJpy, Mode=OneWay}">
@@ -80,7 +87,14 @@
 							<ui:FAPathIconSource Data="{StaticResource EthIconData}" />
 						</ui:FANavigationViewItem.IconSource>
 						<ui:FANavigationViewItem.Content>
-								<TextBlock Text="{Binding LtpEthJpy, Mode=OneWay}" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0"/>
+							<Grid>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="*"/>
+									<ColumnDefinition Width="86"/>
+								</Grid.ColumnDefinitions>
+								<TextBlock Grid.Column="0" Text="{Binding LtpEthJpy, Mode=OneWay}" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0"/>
+								<TextBlock Grid.Column="1" Text="{Binding LtpEthJpyPercentChange, Mode=OneWay}" FontWeight="Normal" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0"/>
+							</Grid>
 						</ui:FANavigationViewItem.Content>
 					</ui:FANavigationViewItem>
 				</ui:FANavigationView.MenuItems>

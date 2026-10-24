@@ -1,9 +1,7 @@
 ﻿using Avalonia.Threading;
 using BitDesk.Models;
-using BitDesk.Services;
 using BitDesk.Services.Contracts;
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using LiveChartsCore;
 using LiveChartsCore.Defaults;
 using LiveChartsCore.Kernel;
@@ -17,11 +15,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
-using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace BitDesk.ViewModels;
 
@@ -375,19 +370,19 @@ public partial class PairViewModel : ObservableObject
 
     #region == Options ==
 
-    private bool _isPaneVisible = true;
-    public bool IsPaneVisible
+    private bool _isPaneOpen = true;
+    public bool IsPaneOpen
     {
-        get => _isPaneVisible;
+        get => _isPaneOpen;
         set
         {
-            if (_isPaneVisible == value)
+            if (_isPaneOpen == value)
             {
                 return;
             }
 
-            _isPaneVisible = value;
-            OnPropertyChanged(nameof(IsPaneVisible));
+            _isPaneOpen = value;
+            OnPropertyChanged(nameof(IsPaneOpen));
         }
     }
 
@@ -1521,12 +1516,6 @@ public partial class PairViewModel : ObservableObject
 
     public async Task UpdateTickerDataAsync(BitbankTickerData data)
     {
-        if (!IsChartInitAndLoaded)
-        {
-            //Debug.WriteLine($"UpdateTickerData() skipped for {data.TickerPair} at {DateTimeOffset.FromUnixTimeMilliseconds(data.Timestamp).LocalDateTime:yyyy-MM-dd HH:mm:ss} because chart is not initialized and loaded.");
-            return;
-        }
-
         if (!IsEnabled)
         {
             //Debug.WriteLine($"UpdateTickerData() skipped for {data.TickerPair} at {DateTimeOffset.FromUnixTimeMilliseconds(data.Timestamp).LocalDateTime:yyyy-MM-dd HH:mm:ss} because IsEnabled is false.");
@@ -1564,7 +1553,6 @@ public partial class PairViewModel : ObservableObject
             return;
         }
 
-
         // Calculate a quick math metric (e.g., daily percentage change)
         decimal priceChange = data.Last - data.Open;
         decimal percentChange = data.Open != 0 ? (priceChange / data.Open) * 100 : 0;
@@ -1580,14 +1568,20 @@ public partial class PairViewModel : ObservableObject
             LowestIn24Price = data.Low;
             TickTimeStamp = DateTimeOffset.FromUnixTimeMilliseconds(data.Timestamp).LocalDateTime;
 
+            if (!IsChartInitAndLoaded)
+            {
+                //Debug.WriteLine($"UpdateTickerData() skipped for {data.TickerPair} at {DateTimeOffset.FromUnixTimeMilliseconds(data.Timestamp).LocalDateTime:yyyy-MM-dd HH:mm:ss} because chart is not initialized and loaded.");
+                return;
+            }
+
             if (Sections[0] is RectangularSection section)
             {
                 section.Yi = (double)data.Last;
                 section.Yj = (double)data.Last;
             }
 
-            DateTime timeStamp = DateTimeOffset.FromUnixTimeMilliseconds(data.Timestamp).LocalDateTime;
-            UpdateCandleUsingTickerData(timeStamp, data);
+            //DateTime timeStamp = DateTimeOffset.FromUnixTimeMilliseconds(data.Timestamp).LocalDateTime;
+            UpdateCandleUsingTickerData(TickTimeStamp, data);
         });
     }
 
@@ -2283,14 +2277,14 @@ public partial class PairViewModel : ObservableObject
     private async void UpdateDepth()
     {
         // timer ver
-        if (IsSelectedActive && IsPaneVisible && IsEnabled)
+        if (IsSelectedActive && IsPaneOpen && IsEnabled)
         {
             await GetDepth(PairCode);
         }
         /*
 while (true)
 {
-   if ((IsSelectedActive == false) || (IsPaneVisible == false) || (IsEnabled == false))
+   if ((IsSelectedActive == false) || (IsPaneOpen == false) || (IsEnabled == false))
    {
        await Task.Delay(1000);
        continue;
